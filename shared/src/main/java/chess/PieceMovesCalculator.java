@@ -12,7 +12,21 @@ public class PieceMovesCalculator {
         if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
             PieceMovesCalculatorBishop.bishopMoveCalc(board, position, moves);
         }
-        // other piece types go here
+        else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            PieceMovesCalculatorKing.kingMoveCalc(board, position, moves);
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            PieceMovesCalculatorKnight.knightMoveCalc(board, position, moves);
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            PieceMovesCalculatorPawn.pawnMoveCalc(board, position, moves);
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            PieceMovesCalculatorQueen.queenMoveCalc(board, position, moves);
+        }
+        else {
+            PieceMovesCalculatorRook.rookMoveCalc(board, position, moves);
+        }
 
         return moves;
     }
