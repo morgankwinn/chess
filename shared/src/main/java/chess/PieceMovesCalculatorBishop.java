@@ -1,34 +1,65 @@
 package chess;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class PieceMovesCalculatorBishop {
 
-    public static Collection<ChessMove> bishopMoveCalc(ChessBoard board, ChessPosition position) {
+    private static int newRow;
+    private static int newCol;
+
+    public static void bishopMoveCalc(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves) {
+        // Up and to the left diagonal
+        calcMovesOneDiagonal(board, position, moves, "UL");
+        // Up and to the right diagonal
+        calcMovesOneDiagonal(board, position, moves, "UR");
+        // Down and to the left diagonal
+        calcMovesOneDiagonal(board, position, moves, "DL");
+        // Down and to the right diagonal
+        calcMovesOneDiagonal(board, position, moves, "DR");
+    }
+
+    private static void calcMovesOneDiagonal(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves, String direction) {
         ChessPiece piece = board.getPiece(position);
         ChessGame.TeamColor team = piece.getTeamColor();
         int row = position.getRow();
         int col = position.getColumn();
-        ArrayList<ChessMove> moves = new ArrayList<>();
 
-        // Up and to the left
-        for(int i = 1; row+i <= 8 && col-i >= 1; i++) {
-            if (board.getPiece(new ChessPosition(row+i, col-i)) != null) {
-                ChessPiece new_piece = board.getPiece(new ChessPosition(row+i, col-i));
+        int i=1;
+        calcNewPos(row, col, i, direction);
+        while(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
+            ChessPosition newPos = new ChessPosition(newRow, newCol);
+
+            if (board.getPiece(newPos) != null) {
+                ChessPiece new_piece = board.getPiece(newPos);
                 if (new_piece.getTeamColor() != team) {
-                    moves.add(new ChessMove(position, new ChessPosition(row + i, col - i), null));
+                    moves.add(new ChessMove(position, newPos, null));
                 }
                 break;
             }
-            moves.add(new ChessMove(position, new ChessPosition(row+i, col-i), null));
+            moves.add(new ChessMove(position, newPos, null));
+            i++;
+            calcNewPos(row, col, i, direction);
         }
-        //while() {}
-        //while() {}
-        //while() {}
-
-        return moves;
     }
 
-    //private MoveNW() {}
+    private static void calcNewPos(int row, int col, int i, String direction) {
+        switch (direction) {
+            case "UL" -> {
+                newRow = row + i;
+                newCol = col - i;
+            }
+            case "UR" -> {
+                newRow = row + i;
+                newCol = col + i;
+            }
+            case "DL" -> {
+                newRow = row - i;
+                newCol = col - i;
+            }
+            default -> {
+                newRow = row - i;
+                newCol = col + i;
+            }
+        }
+    }
 }
