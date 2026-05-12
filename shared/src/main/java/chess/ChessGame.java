@@ -69,7 +69,11 @@ public class ChessGame {
         if (board.getPiece(startPosition) == null) {
             return null;
         }
+
         ChessPiece piece = board.getPiece(startPosition);
+        ChessPiece.PieceType type = piece.getPieceType();
+        TeamColor team = piece.getTeamColor();
+
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> newMoves = new ArrayList<>();
 
@@ -80,12 +84,14 @@ public class ChessGame {
 
         //simulate each move
         for (ChessMove move : moves) {
+            ChessPiece enemyPiece = board.getPiece(move.getEndPosition());
             makeMoveHelper(move);
             //if valid add to the new list
-            if (!isInCheck(piece.getTeamColor())) {
+            if (!isInCheck(team)) {
                 newMoves.add(move);
             }
-            makeMoveHelper(new ChessMove(move.getEndPosition(), move.getStartPosition(), null));
+            makeMoveHelper(new ChessMove(move.getEndPosition(), move.getStartPosition(), type));
+            board.addPiece(move.getEndPosition(), enemyPiece);
         }
         //switch back to OG board
         this.board = originalBoard;
@@ -99,14 +105,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        makeMoveHelper(move);
-        //advance turn
-        if (getTeamTurn() == TeamColor.WHITE) {
-            setTeamTurn(TeamColor.BLACK);
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if ((piece != null) && (piece.getTeamColor() != turn)) {
+            throw new InvalidMoveException();
         }
-        else {
-            setTeamTurn(TeamColor.WHITE);
+        Collection<ChessMove> vMoves = validMoves(move.getStartPosition());
+        if (vMoves == null) {
+            throw new InvalidMoveException();
         }
+
+        for (ChessMove vMove : vMoves) {
+            if (vMove.equals(move)) {
+                makeMoveHelper(move);
+
+                //advance turn
+                if (getTeamTurn() == TeamColor.WHITE) {
+                    setTeamTurn(TeamColor.BLACK);
+                }
+                else {
+                    setTeamTurn(TeamColor.WHITE);
+                }
+                return;
+            }
+        }
+        throw new InvalidMoveException();
     }
 
     private void makeMoveHelper(ChessMove move) {
@@ -132,12 +154,16 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece oppPiece = board.getPiece(new ChessPosition(i, j));
-                if ((oppPiece != null) && (oppPiece.getTeamColor() != teamColor)) {
-                    Collection<ChessMove> moves = oppPiece.pieceMoves(board, new ChessPosition(i, j));
-                    for (ChessMove move : moves) {
-                        ChessPiece pieceInDanger = board.getPiece(move.getEndPosition());
-                        if ((pieceInDanger != null) && (pieceInDanger.getPieceType() == ChessPiece.PieceType.KING)) {
-                            return true;
+                if (oppPiece != null) {
+                    if (oppPiece.getTeamColor() != teamColor){
+                        Collection<ChessMove> moves = oppPiece.pieceMoves(board, new ChessPosition(i, j));
+                        for (ChessMove move : moves) {
+                            ChessPiece pieceInDanger = board.getPiece(move.getEndPosition());
+                            if (pieceInDanger != null) {
+                                if (pieceInDanger.getPieceType() == ChessPiece.PieceType.KING) {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
