@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable{
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
@@ -28,6 +29,27 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
+    }
+
+    @Override
+    public ChessBoard clone() {
+        try {
+            ChessBoard clone = (ChessBoard) super.clone();
+            ChessPiece[][] squaresClone = new ChessPiece[8][8];
+            for (int i = 1; i <=8; i++) {
+                for (int j = 1; j <=8; j++) {
+                    ChessPiece piece = getPiece(new ChessPosition(i, j));
+                    ChessPiece pieceClone = piece.clone();
+                    squaresClone[i-1][j-1] = pieceClone;
+                }
+            }
+
+            clone.squares = squaresClone;
+            return clone;
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
