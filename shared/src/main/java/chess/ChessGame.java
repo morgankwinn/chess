@@ -71,8 +71,25 @@ public class ChessGame {
         }
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> newMoves = new ArrayList<>();
 
-        return moves;
+        //make a copy of the board
+        ChessBoard boardClone = board.clone();
+        ChessBoard originalBoard = board;
+        this.board = boardClone;
+
+        //simulate each move
+        for (ChessMove move : moves) {
+            makeMoveHelper(move);
+            //if valid add to the new list
+            if (!isInCheck(piece.getTeamColor())) {
+                newMoves.add(move);
+            }
+            makeMoveHelper(new ChessMove(move.getEndPosition(), move.getStartPosition(), null));
+        }
+        //switch back to OG board
+        this.board = originalBoard;
+        return newMoves;
     }
 
     /**
@@ -82,6 +99,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        makeMoveHelper(move);
+        //advance turn
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        }
+        else {
+            setTeamTurn(TeamColor.WHITE);
+        }
+    }
+
+    private void makeMoveHelper(ChessMove move) {
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece.PieceType promotion = move.getPromotionPiece();
@@ -100,10 +128,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        TeamColor oppTeamColor;
-        if (teamColor == TeamColor.WHITE) { oppTeamColor = TeamColor.BLACK; }
-        else { oppTeamColor = TeamColor.WHITE; }
-
         //check all opposite teams moves
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
