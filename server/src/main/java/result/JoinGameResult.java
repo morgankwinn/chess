@@ -1,4 +1,3 @@
 package result;
 
-public class JoinGameResult {
-}
+public record JoinGameResult() {}
