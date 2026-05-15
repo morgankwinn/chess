@@ -1,4 +1,3 @@
 package model;
 
-public class AuthToken {
-}
+public record AuthToken(String authToken) {}
