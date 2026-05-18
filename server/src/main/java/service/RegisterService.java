@@ -9,15 +9,25 @@ import result.RegisterResult;
 
 public class RegisterService {
 
-    public RegisterResult register(RegisterRequest request, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException {
+    public RegisterResult register(RegisterRequest request, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException, BadRequestException {
         String username = request.username();
+        String password = request.password();
+        String email = request.email();
+
+        validateRequest(username, password, email);
         isUserOpen(username, userDao);
 
-        User user = new User(username, request.password(), request.email());
+        User user = new User(username, password, email);
         userDao.addUser(user);
-        AuthToken authToken = authDao.addAuth(user);
+        AuthToken authToken = authDao.addAuthToken(user);
 
-        return new RegisterResult(username, authToken);
+        return new RegisterResult(username, authToken.authToken());
+    }
+
+    private void validateRequest(String username, String password, String email) throws BadRequestException {
+        if (username == null || password == null || email == null) {
+            throw new BadRequestException("ERROR: required field empty");
+        }
     }
 
     private void isUserOpen(String username, UserDAO userDao) throws AlreadyTakenException {

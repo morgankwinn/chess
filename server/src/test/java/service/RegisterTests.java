@@ -20,11 +20,11 @@ public class RegisterTests {
             RegisterResult result = service.register(request, userDao, authDao);
 
             System.out.println("Username: " + result.username());
-            System.out.println("Auth Token: " + result.authToken().authToken());
+            System.out.println("Auth Token: " + result.authToken());
 
             System.out.println("Test 1 passed!");
-        } catch (AlreadyTakenException e) {
-            System.out.println("ERROR: Test 1 failed");
+        } catch (Exception e) {
+            System.out.println("ERROR: Test 1 failed, " + e);
         }
 
         System.out.println();
@@ -35,8 +35,8 @@ public class RegisterTests {
         try {
             RegisterResult result2 = service2.register(request2, userDao, authDao);
 
-            System.out.println("ERROR: Test 2 failed");
-        } catch (AlreadyTakenException e) {
+            System.out.println("ERROR: Test 2 failed, added duplicate user");
+        } catch (Exception e) {
             System.out.println("Test 2 passed!");
         }
     }

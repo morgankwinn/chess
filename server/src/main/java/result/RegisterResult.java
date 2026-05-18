@@ -1,4 +1,4 @@
 package result;
 
-public record RegisterResult(String username, model.AuthToken authToken) {
+public record RegisterResult(String username, String authToken) {
 }

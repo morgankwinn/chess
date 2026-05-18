@@ -1,27 +1,28 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
+import handler.ClearHandler;
 import handler.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.AlreadyTakenException;
+import service.BadRequestException;
+
+import java.util.Map;
 
 public class Server {
 
     private final Javalin javalin;
     private final UserDAO userDao = new MemoryUserDAO();
     private final AuthDAO authDao = new MemoryAuthDAO();
+    private final GameDAO gameDao = new MemoryGameDAO();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", context -> RegisterHandler.handleRegister(context, userDao, authDao))
-                .exception(AlreadyTakenException.class, this::handleException);
-
-        // Register your endpoints and exception handlers here.
+                .delete("/db", context -> ClearHandler.handleClear(userDao, authDao, gameDao))
+                .exception(Exception.class, this::handleException);
     }
 
     public int run(int desiredPort) {
@@ -33,7 +34,14 @@ public class Server {
         javalin.stop();
     }
 
-    private String handleException(AlreadyTakenException e, Context context) {
-        return new Gson().toJson(new Exception(e + ": " + context.body()));
+    private void handleException(Exception e, Context context) {
+        Map<String, String> map = Map.of("message", e.getMessage());
+
+        if (e.getClass() == AlreadyTakenException.class) {
+            context.status(403);
+        } else if (e.getClass() == BadRequestException.class) {
+            context.status(400);
+        }
+        context.result(new Gson().toJson(map));
     }
 }

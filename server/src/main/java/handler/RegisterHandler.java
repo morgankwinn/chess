@@ -7,16 +7,17 @@ import io.javalin.http.Context;
 import request.RegisterRequest;
 import result.RegisterResult;
 import service.AlreadyTakenException;
+import service.BadRequestException;
 import service.RegisterService;
 
 public class RegisterHandler {
 
-    public static String handleRegister(Context ctx, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException {
+    public static void handleRegister(Context ctx, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException, BadRequestException {
         RegisterRequest request = (RegisterRequest) new Gson().fromJson(ctx.body(), RegisterRequest.class);
 
         RegisterService service = new RegisterService();
         RegisterResult result = service.register(request, userDao, authDao);
 
-        return new Gson().toJson(result);
+        ctx.result(new Gson().toJson(result));
     }
 }
