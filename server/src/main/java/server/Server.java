@@ -2,10 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import handler.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.AlreadyTakenException;
@@ -27,6 +24,7 @@ public class Server {
                 .post("/user", context -> RegisterHandler.handleRegister(context, userDao, authDao))
                 .post("/session", context -> LoginHandler.handleLogin(context, userDao, authDao))
                 .delete("/session", context -> LogoutHandler.handleLogout(context, authDao))
+                .get("/game", context -> ListGamesHandler.handleListGames(context, gameDao, authDao))
                 .delete("/db", context -> ClearHandler.handleClear(userDao, authDao, gameDao))
                 .exception(Exception.class, this::handleException);
     }
