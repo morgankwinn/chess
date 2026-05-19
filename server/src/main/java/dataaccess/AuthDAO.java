@@ -12,6 +12,8 @@ public interface AuthDAO {
 
     boolean containsAuthToken(String authToken);
 
+    User getUser(String authToken);
+
     void deleteAuthToken(String authToken);
 
     default AuthToken createAuthToken() {
