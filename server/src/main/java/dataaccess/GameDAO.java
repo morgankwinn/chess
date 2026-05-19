@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface GameDAO {
     void clearGames();
 
-    void addGame(Game game);
+    int addGame(String whiteUsername, String blackUsername, String gameName);
 
     Collection<Game> getListGames();
 }

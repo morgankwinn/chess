@@ -25,6 +25,7 @@ public class Server {
                 .post("/session", context -> LoginHandler.handleLogin(context, userDao, authDao))
                 .delete("/session", context -> LogoutHandler.handleLogout(context, authDao))
                 .get("/game", context -> ListGamesHandler.handleListGames(context, gameDao, authDao))
+                .post("/game", context -> CreateGameHandler.handleCreateGame(context, gameDao, authDao))
                 .delete("/db", context -> ClearHandler.handleClear(userDao, authDao, gameDao))
                 .exception(Exception.class, this::handleException);
     }
