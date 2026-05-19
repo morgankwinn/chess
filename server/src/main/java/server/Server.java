@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import handler.ClearHandler;
 import handler.LoginHandler;
+import handler.LogoutHandler;
 import handler.RegisterHandler;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -25,6 +26,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", context -> RegisterHandler.handleRegister(context, userDao, authDao))
                 .post("/session", context -> LoginHandler.handleLogin(context, userDao, authDao))
+                .delete("/session", context -> LogoutHandler.handleLogout(context, authDao))
                 .delete("/db", context -> ClearHandler.handleClear(userDao, authDao, gameDao))
                 .exception(Exception.class, this::handleException);
     }

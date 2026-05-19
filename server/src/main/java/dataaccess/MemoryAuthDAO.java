@@ -4,15 +4,14 @@ import model.AuthToken;
 import model.User;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
-    private final HashMap<User, AuthToken> authTokens = new HashMap<>();
+    private final HashMap<AuthToken, User> authTokens = new HashMap<>();
 
     @Override
     public AuthToken addAuthToken(User user) {
-        AuthToken authToken = createAuth();
-        authTokens.put(user, authToken);
+        AuthToken authToken = createAuthToken();
+        authTokens.put(authToken, user);
         return authToken;
     }
 
@@ -21,7 +20,13 @@ public class MemoryAuthDAO implements AuthDAO {
         authTokens.clear();
     }
 
-    private AuthToken createAuth() {
-        return new AuthToken(UUID.randomUUID().toString());
+    @Override
+    public boolean containsAuthToken(String authToken) {
+        return authTokens.containsKey(new AuthToken(authToken));
+    }
+
+    @Override
+    public void deleteAuthToken(String authToken) {
+        authTokens.remove(new AuthToken(authToken));
     }
 }
