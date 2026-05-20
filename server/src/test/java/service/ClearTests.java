@@ -1,40 +1,33 @@
 package service;
 
 import dataaccess.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
 import result.RegisterResult;
 
 public class ClearTests {
-    public static void main(String[] args) {
-        final UserDAO userDao = new MemoryUserDAO();
-        final AuthDAO authDao = new MemoryAuthDAO();
-        final GameDAO gameDao = new MemoryGameDAO();
+    private static UserDAO userDao;
+    private static AuthDAO authDao;
+    private static GameDAO gameDao;
 
-        System.out.println("Test 1");
+    @BeforeAll
+    public static void setup() {
+        userDao = new MemoryUserDAO();
+        authDao = new MemoryAuthDAO();
+        gameDao = new MemoryGameDAO();
+    }
+
+    @Test
+    public void clearSuccess() throws BadRequestException, AlreadyTakenException {
         RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
         RegisterService registerService = new RegisterService();
         ClearService clearService = new ClearService();
 
-        try {
-            RegisterResult result = registerService.register(request, userDao, authDao);
+        RegisterResult result = registerService.register(request, userDao, authDao);
+        clearService.clear(userDao, authDao, gameDao);
 
-            System.out.println("Username: " + result.username());
-            System.out.println("Auth Token: " + result.authToken());
-
-            clearService.clear(userDao, authDao, gameDao);
-            System.out.println();
-            System.out.println("Cleared");
-            System.out.println();
-
-            System.out.println("User: " + userDao.getUser("user1"));
-
-            if (userDao.getUser("user1") == null) {
-                System.out.println("Test 1 passed!");
-            } else {
-                System.out.println("ERROR: Test 1 failed, did not clear correctly");
-            }
-        } catch (Exception e) {
-            System.out.println("ERROR: Test 1 failed, exception received");
-        }
+        Assertions.assertNull(userDao.getUser("user1"));
     }
 }

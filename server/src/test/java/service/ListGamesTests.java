@@ -1,58 +1,52 @@
 package service;
 
 import dataaccess.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import request.ListGamesRequest;
 import request.RegisterRequest;
 import result.ListGamesResult;
 import result.RegisterResult;
 
 public class ListGamesTests {
-    public static void main(String[] args) {
-        final UserDAO userDao = new MemoryUserDAO();
-        final GameDAO gameDao = new MemoryGameDAO();
-        final AuthDAO authDao = new MemoryAuthDAO();
+    private static UserDAO userDao;
+    private static GameDAO gameDao;
+    private static AuthDAO authDao;
+    private static RegisterResult registerResult;
 
-        System.out.println("Test 1: Positive");
-        RegisterRequest registerRequest = new RegisterRequest("user1", "1234", "me@gmail.com");
+    @BeforeEach
+    public void setup() throws BadRequestException, AlreadyTakenException {
+        userDao = new MemoryUserDAO();
+        gameDao = new MemoryGameDAO();
+        authDao = new MemoryAuthDAO();
+
+        RegisterRequest registerRequest = new RegisterRequest("user1", "1234", "1@gmail.com");
         RegisterService registerService = new RegisterService();
+        registerResult = registerService.register(registerRequest, userDao, authDao);
+
+        gameDao.addGame("user2", "user3", "rematch");
+        gameDao.addGame("user4", "user5", "speedChess");
+    }
+
+    @Test
+    public void listGamesSuccess() throws UnauthorizedException, BadRequestException {
+        ListGamesRequest listGamesRequest = new ListGamesRequest(registerResult.authToken());
+        ListGamesService listGamesService = new ListGamesService();
+        ListGamesResult listGamesResult = listGamesService.listGames(listGamesRequest, authDao, gameDao);
+
+        Assertions.assertNotNull(listGamesResult.games());
+    }
+
+    @Test
+    public void listGamesUnauthorized() {
+        ListGamesRequest listGamesRequest = new ListGamesRequest("");
+        ListGamesService listGamesService = new ListGamesService();
 
         try {
-            RegisterResult registerResult = registerService.register(registerRequest, userDao, authDao);
-
-            System.out.println("Username: " + registerResult.username());
-            System.out.println("Auth Token: " + registerResult.authToken());
-
-            gameDao.addGame("user2", "user3", "rematch");
-            gameDao.addGame("user4", "user5", "speedChess");
-
-            ListGamesRequest listGamesRequest = new ListGamesRequest(registerResult.authToken());
-            ListGamesService listGamesService = new ListGamesService();
-            ListGamesResult listGamesResult = listGamesService.listGames(listGamesRequest, authDao, gameDao);
-
-            if (gameDao.getListGames() == null) {
-                System.out.println("Test 1 failed");
-            } else {
-                System.out.println(gameDao.getListGames());
-                System.out.println("Test 1 passed!");
-            }
+            listGamesService.listGames(listGamesRequest, authDao, gameDao);
         } catch (Exception e) {
-            System.out.println("ERROR: Test 1 failed, " + e);
-        }
-
-        System.out.println();
-        System.out.println("Test 2: Negative");
-
-        try {
-            gameDao.clearGames();
-            System.out.println(gameDao.getListGames());
-
-            if (!gameDao.getListGames().isEmpty()) {
-                System.out.println("ERROR: Test 2 failed, games list does not clear");
-            } else {
-                throw new Exception();
-            }
-        } catch (Exception e) {
-            System.out.println("Test 2 passed!");
+            Assertions.assertEquals(UnauthorizedException.class, e.getClass());
         }
     }
 }

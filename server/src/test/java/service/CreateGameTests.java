@@ -1,51 +1,51 @@
 package service;
 
 import dataaccess.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
 import result.RegisterResult;
 
 public class CreateGameTests {
-    public static void main(String[] args) {
-        final UserDAO userDao = new MemoryUserDAO();
-        final GameDAO gameDao = new MemoryGameDAO();
-        final AuthDAO authDao = new MemoryAuthDAO();
+    private static UserDAO userDao;
+    private static GameDAO gameDao;
+    private static AuthDAO authDao;
+    private static RegisterRequest registerRequest;
+    private static RegisterService registerService;
+    private static RegisterResult registerResult;
 
-        System.out.println("Test 1: Positive");
-        RegisterRequest registerRequest = new RegisterRequest("user1", "1234", "me@gmail.com");
-        RegisterService registerService = new RegisterService();
+    @BeforeAll
+    public static void setup() throws BadRequestException, AlreadyTakenException {
+        userDao = new MemoryUserDAO();
+        gameDao = new MemoryGameDAO();
+        authDao = new MemoryAuthDAO();
 
+        registerRequest = new RegisterRequest("user1", "1234", "me@gmail.com");
+        registerService = new RegisterService();
+        registerResult = registerService.register(registerRequest, userDao, authDao);
+    }
+
+    @Test
+    public void createGameSuccess() throws BadRequestException, UnauthorizedException {
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "newGame");
+        CreateGameService createGameService = new CreateGameService();
+        CreateGameResult createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
+
+        Assertions.assertNotNull(createGameResult);
+    }
+
+    @Test
+    public void createGameNoGameName() throws UnauthorizedException {
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), null);
+        CreateGameService createGameService = new CreateGameService();
+        CreateGameResult createGameResult = null;
         try {
-            RegisterResult registerResult = registerService.register(registerRequest, userDao, authDao);
-
-            System.out.println("Username: " + registerResult.username());
-            System.out.println("Auth Token: " + registerResult.authToken());
-
-            CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "newGame");
-            CreateGameService createGameService = new CreateGameService();
-            CreateGameResult createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
-
-            System.out.println(createGameResult.gameID());
-            System.out.println("Test 1 passed!");
-        } catch (Exception e) {
-            System.out.println("ERROR: Test 1 failed, " + e);
-        }
-
-        System.out.println();
-        System.out.println("Test 2: Negative");
-
-        try {
-            RegisterResult registerResult = registerService.register(registerRequest, userDao, authDao);
-            System.out.println(gameDao.getListGames());
-
-            CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), null);
-            CreateGameService createGameService = new CreateGameService();
-            createGameService.createGame(createGameRequest, gameDao, authDao);
-
-            System.out.println("ERROR: Test 2 failed, Game Name is null");
-        } catch (Exception e) {
-            System.out.println("Test 2 passed!");
+            createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
+        } catch (BadRequestException e) {
+            Assertions.assertNull(createGameResult);
         }
     }
 }

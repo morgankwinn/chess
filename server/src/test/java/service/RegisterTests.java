@@ -4,40 +4,42 @@ import dataaccess.AuthDAO;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
 import result.RegisterResult;
 
 public class RegisterTests {
-    public static void main(String[] args) {
-        final UserDAO userDao = new MemoryUserDAO();
-        final AuthDAO authDao = new MemoryAuthDAO();
+    private static UserDAO userDao;
+    private static AuthDAO authDao;
 
-        System.out.println("Test 1: Positive");
+    @BeforeEach
+    public void setup() {
+        userDao = new MemoryUserDAO();
+        authDao = new MemoryAuthDAO();
+    }
+
+    @Test
+    public void registerSuccess() throws BadRequestException, AlreadyTakenException {
         RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
         RegisterService service = new RegisterService();
+        RegisterResult result = service.register(request, userDao, authDao);
+
+        Assertions.assertNotNull(result.authToken());
+        Assertions.assertNotEquals("", result.authToken());
+    }
+
+    @Test
+    public void reregisterFailure() throws BadRequestException, AlreadyTakenException {
+        RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
+        RegisterService service = new RegisterService();
+        service.register(request, userDao, authDao);
 
         try {
-            RegisterResult result = service.register(request, userDao, authDao);
-
-            System.out.println("Username: " + result.username());
-            System.out.println("Auth Token: " + result.authToken());
-
-            System.out.println("Test 1 passed!");
+            service.register(request, userDao, authDao);
         } catch (Exception e) {
-            System.out.println("ERROR: Test 1 failed, " + e);
-        }
-
-        System.out.println();
-        System.out.println("Test 2: Negative");
-        RegisterRequest request2 = new RegisterRequest("user1", "1234", "me@gmail.com");
-        RegisterService service2 = new RegisterService();
-
-        try {
-            RegisterResult result2 = service2.register(request2, userDao, authDao);
-
-            System.out.println("ERROR: Test 2 failed, added duplicate user");
-        } catch (Exception e) {
-            System.out.println("Test 2 passed!");
+            Assertions.assertEquals(AlreadyTakenException.class, e.getClass());
         }
     }
 }

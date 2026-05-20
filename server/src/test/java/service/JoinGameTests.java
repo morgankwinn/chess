@@ -2,6 +2,9 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.RegisterRequest;
@@ -9,53 +12,50 @@ import result.CreateGameResult;
 import result.RegisterResult;
 
 public class JoinGameTests {
-    public static void main(String[] args) {
-        final UserDAO userDao = new MemoryUserDAO();
-        final GameDAO gameDao = new MemoryGameDAO();
-        final AuthDAO authDao = new MemoryAuthDAO();
-        int gameID = 0;
+    private static UserDAO userDao;
+    private static GameDAO gameDao;
+    private static AuthDAO authDao;
+    private static int gameID;
+    private static RegisterResult registerResult1;
+    private static RegisterResult registerResult2;
 
-        System.out.println("Test 1: Positive");
-        RegisterRequest registerRequest = new RegisterRequest("user1", "1234", "me@gmail.com");
+    @BeforeEach
+    public void setup() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+        userDao = new MemoryUserDAO();
+        gameDao = new MemoryGameDAO();
+        authDao = new MemoryAuthDAO();
+        gameID = 0;
+
+        RegisterRequest registerRequest1 = new RegisterRequest("user1", "1234", "1@gmail.com");
+        RegisterRequest registerRequest2 = new RegisterRequest("user2", "5678", "2@gmail.com");
         RegisterService registerService = new RegisterService();
+        registerResult1 = registerService.register(registerRequest1, userDao, authDao);
+        registerResult2 = registerService.register(registerRequest2, userDao, authDao);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResult1.authToken(), "newGame");
+        CreateGameService createGameService = new CreateGameService();
+        CreateGameResult createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
+        gameID = createGameResult.gameID();
+    }
+
+    @Test
+    public void joinGameSuccess() throws UnauthorizedException, BadRequestException, AlreadyTakenException {
+        JoinGameRequest joinGameRequest = new JoinGameRequest(registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
+        JoinGameService joinGameService = new JoinGameService();
+        joinGameService.joinGame(joinGameRequest, gameDao, authDao);
+    }
+
+    @Test
+    public void joinGameAlreadyTaken() throws UnauthorizedException, AlreadyTakenException, BadRequestException {
+        JoinGameRequest joinGameRequest = new JoinGameRequest(registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest joinGameRequest2 = new JoinGameRequest(registerResult2.authToken(), ChessGame.TeamColor.WHITE, gameID);
+        JoinGameService joinGameService = new JoinGameService();
+        joinGameService.joinGame(joinGameRequest, gameDao, authDao);
 
         try {
-            RegisterResult registerResult = registerService.register(registerRequest, userDao, authDao);
-
-            System.out.println("Username: " + registerResult.username());
-            System.out.println("Auth Token: " + registerResult.authToken());
-
-            CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "newGame");
-            CreateGameService createGameService = new CreateGameService();
-            CreateGameResult createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
-            gameID = createGameResult.gameID();
-
-            JoinGameRequest joinGameRequest = new JoinGameRequest(registerResult.authToken(), ChessGame.TeamColor.WHITE, gameID);
-            JoinGameService joinGameService = new JoinGameService();
-            joinGameService.joinGame(joinGameRequest, gameDao, authDao);
-
-            System.out.println("Test 1 passed!");
+            joinGameService.joinGame(joinGameRequest2, gameDao, authDao);
         } catch (Exception e) {
-            System.out.println("ERROR: Test 1 failed, " + e);
-        }
-
-        System.out.println();
-        System.out.println("Test 2: Negative");
-
-        RegisterRequest registerRequest2 = new RegisterRequest("user2", "1234", "2@gmail.com");
-        RegisterService registerService2 = new RegisterService();
-
-        try {
-            RegisterResult registerResult2 = registerService2.register(registerRequest2, userDao, authDao);
-            System.out.println(gameDao.getListGames());
-
-            JoinGameRequest joinGameRequest2 = new JoinGameRequest(registerResult2.authToken(), ChessGame.TeamColor.WHITE, gameID);
-            JoinGameService joinGameService2 = new JoinGameService();
-            joinGameService2.joinGame(joinGameRequest2, gameDao, authDao);
-
-            System.out.println("ERROR: Test 2 failed, Team Color is taken");
-        } catch (Exception e) {
-            System.out.println("Test 2 passed!");
+            Assertions.assertEquals(AlreadyTakenException.class, e.getClass());
         }
     }
 }
