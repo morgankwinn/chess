@@ -27,15 +27,17 @@ public class PieceMovesCalculatorKing {
         ChessPiece piece = board.getPiece(position);
         ChessGame.TeamColor team = piece.getTeamColor();
 
-        int newRow = position.getRow()+newRowAdd;
-        int newCol = position.getColumn()+newColAdd;
+        int newRow = position.getRow() + newRowAdd;
+        int newCol = position.getColumn() + newColAdd;
 
         if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
             ChessPosition newPos = new ChessPosition(newRow, newCol);
 
             if (board.getPiece(newPos) != null) {
-                ChessPiece new_piece = board.getPiece(newPos);
-                if (new_piece.getTeamColor() == team) { return; }
+                ChessPiece newPiece = board.getPiece(newPos);
+                if (newPiece.getTeamColor() == team) {
+                    return;
+                }
             }
             moves.add(new ChessMove(position, newPos, null));
         }

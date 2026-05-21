@@ -12,7 +12,8 @@ import service.JoinGameService;
 import service.UnauthorizedException;
 
 public class JoinGameHandler {
-    public static void handleJoinGame(Context ctx, GameDAO gameDao, AuthDAO authDao) throws UnauthorizedException, AlreadyTakenException, BadRequestException {
+    public static void handleJoinGame(Context ctx, GameDAO gameDao, AuthDAO authDao)
+            throws UnauthorizedException, AlreadyTakenException, BadRequestException {
         JoinGameRequest request = (JoinGameRequest) new Gson().fromJson(ctx.body(), JoinGameRequest.class);
         request.setAuthToken(ctx.header("authorization"));
 

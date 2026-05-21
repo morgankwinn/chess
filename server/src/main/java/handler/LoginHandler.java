@@ -12,7 +12,8 @@ import service.UnauthorizedException;
 import service.UserDoesNotExistException;
 
 public class LoginHandler {
-    public static void handleLogin(Context ctx, UserDAO userDao, AuthDAO authDao) throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
+    public static void handleLogin(Context ctx, UserDAO userDao, AuthDAO authDao)
+            throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
         LoginRequest request = (LoginRequest) new Gson().fromJson(ctx.body(), LoginRequest.class);
 
         LoginService service = new LoginService();

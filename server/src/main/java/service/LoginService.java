@@ -8,7 +8,8 @@ import request.LoginRequest;
 import result.LoginResult;
 
 public class LoginService {
-    public LoginResult login(LoginRequest request, UserDAO userDao, AuthDAO authDao) throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
+    public LoginResult login(LoginRequest request, UserDAO userDao, AuthDAO authDao)
+            throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
         String username = request.username();
         String password = request.password();
 

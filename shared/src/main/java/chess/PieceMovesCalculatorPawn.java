@@ -3,84 +3,79 @@ package chess;
 import java.util.ArrayList;
 
 public class PieceMovesCalculatorPawn {
-
+    private static ChessBoard board;
+    private static ChessPosition position;
+    private static ArrayList<ChessMove> moves;
+    private static ChessPiece piece;
+    private static ChessGame.TeamColor team;
+    private static int row;
+    private static int col;
     private static int newRow;
     private static int newCol;
 
-    public static void pawnMoveCalc(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves) {
-        moveForward(board, position, moves);
+    public static void pawnMoveCalc(ChessBoard givenBoard, ChessPosition givenPosition,
+                                    ArrayList<ChessMove> givenMoves) {
+        board = givenBoard;
+        position = givenPosition;
+        moves = givenMoves;
+        piece = board.getPiece(position);
+        team = piece.getTeamColor();
+        row = position.getRow();
+        col = position.getColumn();
+
+        moveForward();
     }
 
-    private static void moveForward(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves) {
-        ChessPiece piece = board.getPiece(position);
-        ChessGame.TeamColor team = piece.getTeamColor();
-        int row = position.getRow();
-        int col = position.getColumn();
-
-        calcNewPos(row, col, "normal", team);
-        if(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
+    private static void moveForward() {
+        calcNewPos("normal");
+        if (inBounds()) {
             ChessPosition newPos = new ChessPosition(newRow, newCol);
             if (board.getPiece(newPos) == null) {
-                if ((team == ChessGame.TeamColor.WHITE && newRow == 8) || (team == ChessGame.TeamColor.BLACK && newRow == 1)) {
-                    moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.KNIGHT));
-                    moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.ROOK));
-                }
-                else {
-                    moves.add(new ChessMove(position, newPos, null));
-                }
-
-                if ((team == ChessGame.TeamColor.WHITE && row == 2) || (team == ChessGame.TeamColor.BLACK && row == 7)) {
-                    calcNewPos(row, col, "start", team);
-                    newPos = new ChessPosition(newRow, newCol);
-                    if (board.getPiece(newPos) == null) {
-                        moves.add(new ChessMove(position, newPos, null));
-                    }
-                }
+                checkAndPromote(newPos);
+                doubleMove();
             }
         }
 
-        calcNewPos(row, col, "captureL", team);
-        if(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
+        capture("captureL");
+        capture("captureR");
+    }
+
+    private static void doubleMove() {
+        ChessPosition newPos;
+        if ((team == ChessGame.TeamColor.WHITE && row == 2) || (team == ChessGame.TeamColor.BLACK && row == 7)) {
+            calcNewPos("start");
+            newPos = new ChessPosition(newRow, newCol);
+            if (board.getPiece(newPos) == null) {
+                moves.add(new ChessMove(position, newPos, null));
+            }
+        }
+    }
+
+    private static void capture(String direction) {
+        calcNewPos(direction);
+        if (inBounds()) {
             ChessPosition newPos = new ChessPosition(newRow, newCol);
             if (board.getPiece(newPos) != null) {
                 ChessPiece newPiece = board.getPiece(newPos);
                 if (newPiece.getTeamColor() != team) {
-                    if ((team == ChessGame.TeamColor.WHITE && newRow == 8) || (team == ChessGame.TeamColor.BLACK && newRow == 1)) {
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.QUEEN));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.BISHOP));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.KNIGHT));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.ROOK));
-                    }
-                    else {
-                        moves.add(new ChessMove(position, newPos, null));
-                    }
-                }
-            }
-        }
-
-        calcNewPos(row, col, "captureR", team);
-        if(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
-            ChessPosition newPos = new ChessPosition(newRow, newCol);
-            if (board.getPiece(newPos) != null) {
-                ChessPiece newPiece = board.getPiece(newPos);
-                if (newPiece.getTeamColor() != team) {
-                    if ((team == ChessGame.TeamColor.WHITE && newRow == 8) || (team == ChessGame.TeamColor.BLACK && newRow == 1)) {
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.QUEEN));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.BISHOP));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.KNIGHT));
-                        moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.ROOK));
-                    }
-                    else {
-                        moves.add(new ChessMove(position, newPos, null));
-                    }
+                    checkAndPromote(newPos);
                 }
             }
         }
     }
 
-    private static void calcNewPos(int row, int col, String direction, ChessGame.TeamColor team) {
+    private static void checkAndPromote(ChessPosition newPos) {
+        if ((team == ChessGame.TeamColor.WHITE && newRow == 8) || (team == ChessGame.TeamColor.BLACK && newRow == 1)) {
+            moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.QUEEN));
+            moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.BISHOP));
+            moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.KNIGHT));
+            moves.add(new ChessMove(position, newPos, ChessPiece.PieceType.ROOK));
+        } else {
+            moves.add(new ChessMove(position, newPos, null));
+        }
+    }
+
+    private static void calcNewPos(String direction) {
         if (team == ChessGame.TeamColor.WHITE) {
             switch (direction) {
                 case "captureL" -> {
@@ -121,5 +116,9 @@ public class PieceMovesCalculatorPawn {
                 }
             }
         }
+    }
+
+    private static boolean inBounds() {
+        return (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8);
     }
 }

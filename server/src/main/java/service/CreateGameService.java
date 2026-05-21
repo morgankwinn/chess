@@ -6,7 +6,8 @@ import request.CreateGameRequest;
 import result.CreateGameResult;
 
 public class CreateGameService {
-    public CreateGameResult createGame(CreateGameRequest request, GameDAO gameDao, AuthDAO authDao) throws UnauthorizedException, BadRequestException {
+    public CreateGameResult createGame(CreateGameRequest request, GameDAO gameDao, AuthDAO authDao)
+            throws UnauthorizedException, BadRequestException {
         try {
             String authToken = request.authToken();
 

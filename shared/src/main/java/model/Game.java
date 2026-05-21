@@ -43,10 +43,6 @@ public final class Game {
         return gameName;
     }
 
-    public ChessGame game() {
-        return game;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

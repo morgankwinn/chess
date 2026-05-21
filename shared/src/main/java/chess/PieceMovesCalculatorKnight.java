@@ -33,14 +33,17 @@ public class PieceMovesCalculatorKnight {
         int col = position.getColumn();
 
         calcNewPos(row, col, direction);
-        if(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
+        if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
             ChessPosition newPos = new ChessPosition(newRow, newCol);
 
             if (board.getPiece(newPos) != null) {
-                ChessPiece new_piece = board.getPiece(newPos);
-                if (new_piece.getTeamColor() != team) { moves.add(new ChessMove(position, newPos, null)); }
+                ChessPiece newPiece = board.getPiece(newPos);
+                if (newPiece.getTeamColor() != team) {
+                    moves.add(new ChessMove(position, newPos, null));
+                }
+            } else {
+                moves.add(new ChessMove(position, newPos, null));
             }
-            else { moves.add(new ChessMove(position, newPos, null)); }
         }
     }
 

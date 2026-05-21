@@ -7,7 +7,8 @@ import model.Game;
 import request.JoinGameRequest;
 
 public class JoinGameService {
-    public void joinGame(JoinGameRequest request, GameDAO gameDao, AuthDAO authDao) throws UnauthorizedException, AlreadyTakenException, BadRequestException {
+    public void joinGame(JoinGameRequest request, GameDAO gameDao, AuthDAO authDao)
+            throws UnauthorizedException, AlreadyTakenException, BadRequestException {
         try {
             String authToken = request.authToken();
 
@@ -27,7 +28,7 @@ public class JoinGameService {
             } else if (request.playerColor() == ChessGame.TeamColor.BLACK && game.blackUsername() != null) {
                 throw new AlreadyTakenException("ERROR: Team Color already taken");
             }
-            
+
             String username = authDao.getUser(authToken).username();
 
             gameDao.addUserToGame(request.gameID(), username, request.playerColor());

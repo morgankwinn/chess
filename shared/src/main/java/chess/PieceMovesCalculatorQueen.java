@@ -2,88 +2,25 @@ package chess;
 
 import java.util.ArrayList;
 
+import static chess.PieceMovesCalculator.moveOneDirection;
+
 public class PieceMovesCalculatorQueen {
-
-    private static int newRow;
-    private static int newCol;
-
     public static void queenMoveCalc(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves) {
         // Up and to the left direction
-        moveOneDirection(board, position, moves, "UL");
+        moveOneDirection(board, position, "UL", moves);
         // Up direction
-        moveOneDirection(board, position, moves, "U");
+        moveOneDirection(board, position, "U", moves);
         // Up and to the right direction
-        moveOneDirection(board, position, moves, "UR");
+        moveOneDirection(board, position, "UR", moves);
         // Right direction
-        moveOneDirection(board, position, moves, "R");
+        moveOneDirection(board, position, "R", moves);
         // Down and to the right direction
-        moveOneDirection(board, position, moves, "DR");
+        moveOneDirection(board, position, "DR", moves);
         // Down direction
-        moveOneDirection(board, position, moves, "D");
+        moveOneDirection(board, position, "D", moves);
         // Down and to the left direction
-        moveOneDirection(board, position, moves, "DL");
+        moveOneDirection(board, position, "DL", moves);
         // Left direction
-        moveOneDirection(board, position, moves, "L");
-    }
-
-    private static void moveOneDirection(ChessBoard board, ChessPosition position, ArrayList<ChessMove> moves, String direction) {
-        ChessPiece piece = board.getPiece(position);
-        ChessGame.TeamColor team = piece.getTeamColor();
-        int row = position.getRow();
-        int col = position.getColumn();
-
-        int i=1;
-        calcNewPos(row, col, i, direction);
-        while(newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
-            ChessPosition newPos = new ChessPosition(newRow, newCol);
-
-            if (board.getPiece(newPos) != null) {
-                ChessPiece new_piece = board.getPiece(newPos);
-                if (new_piece.getTeamColor() != team) {
-                    moves.add(new ChessMove(position, newPos, null));
-                }
-                break;
-            }
-            moves.add(new ChessMove(position, newPos, null));
-            i++;
-            calcNewPos(row, col, i, direction);
-        }
-    }
-
-    private static void calcNewPos(int row, int col, int i, String direction) {
-        switch (direction) {
-            case "UL" -> {
-                newRow = row + i;
-                newCol = col - i;
-            }
-            case "U" -> {
-                newRow = row + i;
-                newCol = col;
-            }
-            case "UR" -> {
-                newRow = row + i;
-                newCol = col + i;
-            }
-            case "R" -> {
-                newRow = row;
-                newCol = col + i;
-            }
-            case "DR" -> {
-                newRow = row - i;
-                newCol = col + i;
-            }
-            case "D" -> {
-                newRow = row - i;
-                newCol = col;
-            }
-            case "DL" -> {
-                newRow = row - i;
-                newCol = col - i;
-            }
-            default -> {
-                newRow = row;
-                newCol = col - i;
-            }
-        }
+        moveOneDirection(board, position, "L", moves);
     }
 }
