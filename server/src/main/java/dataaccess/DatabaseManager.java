@@ -8,6 +8,11 @@ public class DatabaseManager {
     private static String dbUsername;
     private static String dbPassword;
     private static String connectionUrl;
+    private final String[] createStatements = {
+            """
+            
+            """
+    };
 
     /*
      * Load the database information for the db.properties file.
@@ -73,5 +78,28 @@ public class DatabaseManager {
         var host = props.getProperty("db.host");
         var port = Integer.parseInt(props.getProperty("db.port"));
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
+    }
+
+    public static void configureDatabase() throws DataAccessException {
+        createDatabase();
+        try (Connection conn = getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("ERROR: Could not configure database");
+        }
+    }
+
+    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("ERROR: Could not execute update");
+        }
     }
 }

@@ -10,16 +10,22 @@ import service.BadRequestException;
 import service.UserDoesNotExistException;
 import service.UnauthorizedException;
 
+import java.sql.Connection;
 import java.util.Map;
 
 public class Server {
 
     private final Javalin javalin;
-    private final UserDAO userDao = new MemoryUserDAO();
-    private final AuthDAO authDao = new MemoryAuthDAO();
-    private final GameDAO gameDao = new MemoryGameDAO();
+    private final UserDAO userDao = new MySQLUserDAO();
+    private final AuthDAO authDao = new MySQLAuthDAO();
+    private final GameDAO gameDao = new MySQLGameDAO();
 
     public Server() {
+        try {
+            DatabaseManager.configureDatabase();
+        } catch (DataAccessException e) {
+            System.out.println("" + e);
+        }
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", context -> RegisterHandler.handleRegister(context, userDao, authDao))
                 .post("/session", context -> LoginHandler.handleLogin(context, userDao, authDao))
