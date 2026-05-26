@@ -10,7 +10,6 @@ import service.BadRequestException;
 import service.UserDoesNotExistException;
 import service.UnauthorizedException;
 
-import java.sql.Connection;
 import java.util.Map;
 
 public class Server {
@@ -24,7 +23,7 @@ public class Server {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
-            System.out.println("" + e);
+            System.out.printf(String.valueOf(e));
         }
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", context -> RegisterHandler.handleRegister(context, userDao, authDao))

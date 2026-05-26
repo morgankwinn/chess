@@ -1,16 +1,43 @@
 package dataaccess;
 
+import chess.ChessGame;
+
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static String databaseName;
     private static String dbUsername;
     private static String dbPassword;
     private static String connectionUrl;
-    private final String[] createStatements = {
+    private static final String[] createStatements = {
             """
-            
+            CREATE TABLE IF NOT EXISTS authToken (
+              `ID` int NOT NULL AUTO_INCREMENT,
+              `authToken` varchar(256) NOT NULL,
+              PRIMARY KEY (`ID`)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS game (
+              `gameID` int NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(256) NOT NULL,
+              `blackUsername` varchar(256) NOT NULL,
+              `gameName` varchar(256) NOT NULL,
+              `game` TEXT DEFAULT NULL,
+              PRIMARY KEY (`gameID`)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS user (
+              `ID` int NOT NULL AUTO_INCREMENT,
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`ID`)
+            )
             """
     };
 
@@ -84,7 +111,7 @@ public class DatabaseManager {
         createDatabase();
         try (Connection conn = getConnection()) {
             for (String statement : createStatements) {
-                try (var preparedStatement = prepareStatement(statement)) {
+                try (var preparedStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                     preparedStatement.executeUpdate();
                 }
             }
@@ -96,7 +123,26 @@ public class DatabaseManager {
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    } else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    } else if (param instanceof ChessGame p) {
+                        ps.setString(i + 1, p.toString());
+                    } else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
+                }
+                ps.executeUpdate();
 
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
             }
         } catch (SQLException e) {
             throw new DataAccessException("ERROR: Could not execute update");
