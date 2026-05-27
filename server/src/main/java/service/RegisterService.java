@@ -32,7 +32,7 @@ public class RegisterService {
         }
     }
 
-    private void isUserOpen(String username, UserDAO userDao) throws AlreadyTakenException {
+    private void isUserOpen(String username, UserDAO userDao) throws AlreadyTakenException, DataAccessException {
         if (userDao.getUser(username) != null) {
             throw new AlreadyTakenException("ERROR: username already taken");
         }

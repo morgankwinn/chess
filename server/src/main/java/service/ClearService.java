@@ -12,7 +12,7 @@ public class ClearService {
         clearGames(gameDao);
     }
 
-    private void clearUsers(UserDAO userDao) {
+    private void clearUsers(UserDAO userDao) throws DataAccessException {
         userDao.clearUsers();
     }
 

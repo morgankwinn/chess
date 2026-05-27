@@ -32,7 +32,8 @@ public class LoginService {
         }
     }
 
-    private void doesUserExist(String username, UserDAO userDao) throws UserDoesNotExistException {
+    private void doesUserExist(String username, UserDAO userDao)
+            throws UserDoesNotExistException, DataAccessException {
         if (userDao.getUser(username) == null) {
             throw new UserDoesNotExistException("ERROR: username does not exist");
         }
