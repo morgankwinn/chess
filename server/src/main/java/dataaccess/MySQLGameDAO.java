@@ -22,7 +22,7 @@ public class MySQLGameDAO implements GameDAO {
     public int addGame(String whiteUsername, String blackUsername, String gameName) throws DataAccessException {
         var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         ChessGame game = new ChessGame();
-        String gameString = new Gson().toJson(game.toString());
+        String gameString = new Gson().toJson(game);
         int id = DatabaseManager.executeUpdate(statement, whiteUsername, blackUsername, gameName, gameString);
 
         if (id != 0) {
@@ -37,20 +37,22 @@ public class MySQLGameDAO implements GameDAO {
         String statement = "SELECT * FROM game where gameID=?";
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setInt(gameID, 1);
+
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                String whiteUsername = rs.getNString("whiteUsername");
-                String blackUsername = rs.getNString("blackUsername");
-                String gameName = rs.getNString("gameName");
-                String gameString = rs.getNString("game");
+                String whiteUsername = rs.getString("whiteUsername");
+                String blackUsername = rs.getString("blackUsername");
+                String gameName = rs.getString("gameName");
+                String gameString = rs.getString("game");
                 ChessGame game = (ChessGame) new Gson().fromJson(gameString, ChessGame.class);
 
                 return new Game(gameID, whiteUsername, blackUsername, gameName, game);
             }
             return null;
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not establish a connection to the database");
+            throw new DataAccessException("ERROR: Could not establish a connection to the database: " + e.getMessage());
         }
     }
 
@@ -63,17 +65,17 @@ public class MySQLGameDAO implements GameDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 int gameID = rs.getInt("gameID");
-                String whiteUsername = rs.getNString("whiteUsername");
-                String blackUsername = rs.getNString("blackUsername");
-                String gameName = rs.getNString("gameName");
-                String gameString = rs.getNString("game");
+                String whiteUsername = rs.getString("whiteUsername");
+                String blackUsername = rs.getString("blackUsername");
+                String gameName = rs.getString("gameName");
+                String gameString = rs.getString("game");
                 ChessGame game = (ChessGame) new Gson().fromJson(gameString, ChessGame.class);
 
                 gamesList.add(new Game(gameID, whiteUsername, blackUsername, gameName, game));
             }
             return gamesList;
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not get games list");
+            throw new DataAccessException("ERROR: Could not get games list: " + e.getMessage());
         }
     }
 
@@ -86,7 +88,7 @@ public class MySQLGameDAO implements GameDAO {
         } else {
             statement = "UPDATE game SET blackUsername=? WHERE gameID=?";
         }
-        
+
         DatabaseManager.executeUpdate(statement, username, gameID);
     }
 }

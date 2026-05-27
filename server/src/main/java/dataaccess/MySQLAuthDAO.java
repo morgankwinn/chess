@@ -13,7 +13,7 @@ public class MySQLAuthDAO implements AuthDAO {
     public AuthToken addAuthToken(User user) throws DataAccessException {
         var statement = "INSERT INTO authToken (authToken, username) VALUES (?, ?)";
         AuthToken authToken = createAuthToken();
-        int id = DatabaseManager.executeUpdate(statement, authToken, user.username());
+        int id = DatabaseManager.executeUpdate(statement, String.valueOf(authToken.authToken()), user.username());
 
         if (id != 0) {
             return authToken;
@@ -29,9 +29,21 @@ public class MySQLAuthDAO implements AuthDAO {
 
     @Override
     public boolean containsAuthToken(String authToken) throws DataAccessException {
-        String statement = "SELECT authToken FROM authToken WHERE authToken=?";
-        int id = DatabaseManager.executeUpdate(statement, authToken);
-        return id != 0;
+        String statement = "SELECT id FROM authToken WHERE authToken=?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1, authToken);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                return true;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DataAccessException("ERROR: Could not establish a connection to the database: " + e.getMessage());
+        }
     }
 
     @Override
@@ -39,25 +51,29 @@ public class MySQLAuthDAO implements AuthDAO {
         String statement = "SELECT authToken, username FROM authToken where authToken=?";
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1, authToken);
+
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                String username = rs.getNString("username");
+                String username = rs.getString("username");
 
                 statement = "SELECT * FROM user where username=?";
                 ps = conn.prepareStatement(statement);
+                ps.setString(1, username);
+
                 rs = ps.executeQuery();
 
                 if (rs.next()) {
-                    String password = rs.getNString("password");
-                    String email = rs.getNString("email");
+                    String password = rs.getString("password");
+                    String email = rs.getString("email");
 
                     return new User(username, password, email);
                 }
             }
             return null;
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not establish a connection to the database");
+            throw new DataAccessException("ERROR: Could not establish a connection to the database: " + e.getMessage());
         }
     }
 

@@ -55,9 +55,11 @@ public class Server {
         } else if (e.getClass() == UserDoesNotExistException.class) {
             context.status(401);
         } else if (e.getClass() == DataAccessException.class) {
-            context.status(401);
+            context.status(400);
         } else if (e.getClass() == UnauthorizedException.class) {
             context.status(401);
+        } else if (e.getClass() == RuntimeException.class) {
+            context.status(500);
         }
         context.result(new Gson().toJson(map));
     }

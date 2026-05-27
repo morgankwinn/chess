@@ -24,8 +24,8 @@ public class DatabaseManager {
             """
             CREATE TABLE IF NOT EXISTS game (
               `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) NOT NULL,
-              `blackUsername` varchar(256) NOT NULL,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
               `game` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
@@ -52,13 +52,13 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static public void createDatabase() throws DataAccessException {
+    static public void createDatabase() throws RuntimeException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database", ex);
+            throw new RuntimeException("ERROR: failed to create database", ex);
         }
     }
 
@@ -74,27 +74,27 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    static Connection getConnection() throws RuntimeException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to get connection", ex);
+            throw new RuntimeException("ERROR: failed to get connection", ex);
         }
     }
 
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
             if (propStream == null) {
-                throw new Exception("Unable to load db.properties");
+                throw new Exception("ERROR: Unable to load db.properties");
             }
             Properties props = new Properties();
             props.load(propStream);
             loadProperties(props);
         } catch (Exception ex) {
-            throw new RuntimeException("unable to process db.properties", ex);
+            throw new RuntimeException("ERROR: unable to process db.properties", ex);
         }
     }
 
@@ -117,7 +117,7 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not configure database");
+            throw new DataAccessException("ERROR: Could not configure database: " + e.getMessage());
         }
     }
 
@@ -146,7 +146,7 @@ public class DatabaseManager {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not execute update");
+            throw new DataAccessException("ERROR: Could not execute update: " + e.getMessage());
         }
     }
 }

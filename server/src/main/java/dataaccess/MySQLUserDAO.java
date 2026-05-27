@@ -13,17 +13,19 @@ public class MySQLUserDAO implements UserDAO {
         String statement = "SELECT * FROM user WHERE username=?";
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(statement);
+            ps.setString(1, username);
+
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                String password = rs.getNString("password");
-                String email = rs.getNString("email");
+                String password = rs.getString("password");
+                String email = rs.getString("email");
 
                 return new User(username, password, email);
             }
             return null;
         } catch (SQLException e) {
-            throw new DataAccessException("ERROR: Could not establish a connection to the database");
+            throw new DataAccessException("ERROR: Could not establish a connection to the database: " + e.getMessage());
         }
     }
 
