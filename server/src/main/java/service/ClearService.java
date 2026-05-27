@@ -20,7 +20,7 @@ public class ClearService {
         authDao.clearAuthTokens();
     }
 
-    private void clearGames(GameDAO gameDao) {
+    private void clearGames(GameDAO gameDao) throws DataAccessException {
         gameDao.clearGames();
     }
 }
