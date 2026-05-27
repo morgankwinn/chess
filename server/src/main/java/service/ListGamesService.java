@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.Game;
 import request.ListGamesRequest;
@@ -9,7 +10,8 @@ import result.ListGamesResult;
 import java.util.Collection;
 
 public class ListGamesService {
-    public ListGamesResult listGames(ListGamesRequest request, AuthDAO authDao, GameDAO gameDao) throws UnauthorizedException, BadRequestException {
+    public ListGamesResult listGames(ListGamesRequest request, AuthDAO authDao, GameDAO gameDao)
+            throws UnauthorizedException, BadRequestException, DataAccessException {
         try {
             String authToken = request.authToken();
 

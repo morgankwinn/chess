@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthToken;
 import model.User;
@@ -9,7 +10,8 @@ import result.RegisterResult;
 
 public class RegisterService {
 
-    public RegisterResult register(RegisterRequest request, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException, BadRequestException {
+    public RegisterResult register(RegisterRequest request, UserDAO userDao, AuthDAO authDao)
+            throws AlreadyTakenException, BadRequestException, DataAccessException {
         String username = request.username();
         String password = request.password();
         String email = request.email();

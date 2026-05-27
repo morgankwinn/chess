@@ -18,7 +18,7 @@ public class CreateGameTests {
     private static RegisterResult registerResult;
 
     @BeforeAll
-    public static void setup() throws BadRequestException, AlreadyTakenException {
+    public static void setup() throws BadRequestException, AlreadyTakenException, DataAccessException {
         userDao = new MemoryUserDAO();
         gameDao = new MemoryGameDAO();
         authDao = new MemoryAuthDAO();
@@ -29,7 +29,7 @@ public class CreateGameTests {
     }
 
     @Test
-    public void createGameSuccess() throws BadRequestException, UnauthorizedException {
+    public void createGameSuccess() throws BadRequestException, UnauthorizedException, DataAccessException {
         CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), "newGame");
         CreateGameService createGameService = new CreateGameService();
         CreateGameResult createGameResult = createGameService.createGame(createGameRequest, gameDao, authDao);
@@ -38,7 +38,7 @@ public class CreateGameTests {
     }
 
     @Test
-    public void createGameNoGameName() throws UnauthorizedException {
+    public void createGameNoGameName() throws UnauthorizedException, DataAccessException {
         CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(), null);
         CreateGameService createGameService = new CreateGameService();
         CreateGameResult createGameResult = null;

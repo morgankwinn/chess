@@ -20,7 +20,7 @@ public class JoinGameTests {
     private static RegisterResult registerResult2;
 
     @BeforeEach
-    public void setup() throws BadRequestException, AlreadyTakenException, UnauthorizedException {
+    public void setup() throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
         userDao = new MemoryUserDAO();
         gameDao = new MemoryGameDAO();
         authDao = new MemoryAuthDAO();
@@ -39,16 +39,21 @@ public class JoinGameTests {
     }
 
     @Test
-    public void joinGameSuccess() throws UnauthorizedException, BadRequestException, AlreadyTakenException {
-        JoinGameRequest joinGameRequest = new JoinGameRequest(registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
+    public void joinGameSuccess()
+            throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+        JoinGameRequest joinGameRequest = new JoinGameRequest(
+                registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
         JoinGameService joinGameService = new JoinGameService();
         joinGameService.joinGame(joinGameRequest, gameDao, authDao);
     }
 
     @Test
-    public void joinGameAlreadyTaken() throws UnauthorizedException, AlreadyTakenException, BadRequestException {
-        JoinGameRequest joinGameRequest = new JoinGameRequest(registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
-        JoinGameRequest joinGameRequest2 = new JoinGameRequest(registerResult2.authToken(), ChessGame.TeamColor.WHITE, gameID);
+    public void joinGameAlreadyTaken()
+            throws UnauthorizedException, AlreadyTakenException, BadRequestException, DataAccessException {
+        JoinGameRequest joinGameRequest = new JoinGameRequest(
+                registerResult1.authToken(), ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest joinGameRequest2 = new JoinGameRequest(
+                registerResult2.authToken(), ChessGame.TeamColor.WHITE, gameID);
         JoinGameService joinGameService = new JoinGameService();
         joinGameService.joinGame(joinGameRequest, gameDao, authDao);
 

@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthToken;
 import model.User;
@@ -9,7 +10,7 @@ import result.LoginResult;
 
 public class LoginService {
     public LoginResult login(LoginRequest request, UserDAO userDao, AuthDAO authDao)
-            throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
+            throws UserDoesNotExistException, BadRequestException, UnauthorizedException, DataAccessException {
         String username = request.username();
         String password = request.password();
 

@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.http.Context;
 import request.JoinGameRequest;
@@ -13,7 +14,7 @@ import service.UnauthorizedException;
 
 public class JoinGameHandler {
     public static void handleJoinGame(Context ctx, GameDAO gameDao, AuthDAO authDao)
-            throws UnauthorizedException, AlreadyTakenException, BadRequestException {
+            throws UnauthorizedException, AlreadyTakenException, BadRequestException, DataAccessException {
         JoinGameRequest request = (JoinGameRequest) new Gson().fromJson(ctx.body(), JoinGameRequest.class);
         request.setAuthToken(ctx.header("authorization"));
 

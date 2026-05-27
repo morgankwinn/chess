@@ -17,6 +17,7 @@ public class DatabaseManager {
             CREATE TABLE IF NOT EXISTS authToken (
               `ID` int NOT NULL AUTO_INCREMENT,
               `authToken` varchar(256) NOT NULL,
+              `username` varchar(256) NOT NULL,
               PRIMARY KEY (`ID`)
             )
             """,
@@ -120,7 +121,7 @@ public class DatabaseManager {
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+    public static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {

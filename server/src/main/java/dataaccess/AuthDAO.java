@@ -6,15 +6,15 @@ import model.User;
 import java.util.UUID;
 
 public interface AuthDAO {
-    AuthToken addAuthToken(User user);
+    AuthToken addAuthToken(User user) throws DataAccessException;
 
-    void clearAuthTokens();
+    void clearAuthTokens() throws DataAccessException;
 
-    boolean containsAuthToken(String authToken);
+    boolean containsAuthToken(String authToken) throws DataAccessException;
 
-    User getUser(String authToken);
+    User getUser(String authToken) throws DataAccessException;
 
-    void deleteAuthToken(String authToken);
+    void deleteAuthToken(String authToken) throws DataAccessException;
 
     default AuthToken createAuthToken() {
         return new AuthToken(UUID.randomUUID().toString());

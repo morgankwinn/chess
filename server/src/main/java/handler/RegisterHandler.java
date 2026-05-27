@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
 import request.RegisterRequest;
@@ -12,7 +13,8 @@ import service.RegisterService;
 
 public class RegisterHandler {
 
-    public static void handleRegister(Context ctx, UserDAO userDao, AuthDAO authDao) throws AlreadyTakenException, BadRequestException {
+    public static void handleRegister(Context ctx, UserDAO userDao, AuthDAO authDao)
+            throws AlreadyTakenException, BadRequestException, DataAccessException {
         RegisterRequest request = (RegisterRequest) new Gson().fromJson(ctx.body(), RegisterRequest.class);
 
         RegisterService service = new RegisterService();

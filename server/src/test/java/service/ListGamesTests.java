@@ -16,7 +16,7 @@ public class ListGamesTests {
     private static RegisterResult registerResult;
 
     @BeforeEach
-    public void setup() throws BadRequestException, AlreadyTakenException {
+    public void setup() throws BadRequestException, AlreadyTakenException, DataAccessException {
         userDao = new MemoryUserDAO();
         gameDao = new MemoryGameDAO();
         authDao = new MemoryAuthDAO();
@@ -30,7 +30,7 @@ public class ListGamesTests {
     }
 
     @Test
-    public void listGamesSuccess() throws UnauthorizedException, BadRequestException {
+    public void listGamesSuccess() throws UnauthorizedException, BadRequestException, DataAccessException {
         ListGamesRequest listGamesRequest = new ListGamesRequest(registerResult.authToken());
         ListGamesService listGamesService = new ListGamesService();
         ListGamesResult listGamesResult = listGamesService.listGames(listGamesRequest, authDao, gameDao);

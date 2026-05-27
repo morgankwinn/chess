@@ -1,13 +1,16 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import request.CreateGameRequest;
 import result.CreateGameResult;
 
+import javax.xml.crypto.Data;
+
 public class CreateGameService {
     public CreateGameResult createGame(CreateGameRequest request, GameDAO gameDao, AuthDAO authDao)
-            throws UnauthorizedException, BadRequestException {
+            throws UnauthorizedException, BadRequestException, DataAccessException {
         try {
             String authToken = request.authToken();
 

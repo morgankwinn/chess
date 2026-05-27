@@ -2,13 +2,14 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.Game;
 import request.JoinGameRequest;
 
 public class JoinGameService {
     public void joinGame(JoinGameRequest request, GameDAO gameDao, AuthDAO authDao)
-            throws UnauthorizedException, AlreadyTakenException, BadRequestException {
+            throws UnauthorizedException, AlreadyTakenException, BadRequestException, DataAccessException {
         try {
             String authToken = request.authToken();
 

@@ -1,11 +1,13 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import model.AuthToken;
 import request.LogoutRequest;
 
 public class LogoutService {
-    public void logout(LogoutRequest request, AuthDAO authDao) throws UnauthorizedException, BadRequestException {
+    public void logout(LogoutRequest request, AuthDAO authDao)
+            throws UnauthorizedException, BadRequestException, DataAccessException {
         try {
             String authToken = request.authToken();
 

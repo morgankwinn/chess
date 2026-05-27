@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
 import request.LoginRequest;
@@ -13,7 +14,7 @@ import service.UserDoesNotExistException;
 
 public class LoginHandler {
     public static void handleLogin(Context ctx, UserDAO userDao, AuthDAO authDao)
-            throws UserDoesNotExistException, BadRequestException, UnauthorizedException {
+            throws UserDoesNotExistException, BadRequestException, UnauthorizedException, DataAccessException {
         LoginRequest request = (LoginRequest) new Gson().fromJson(ctx.body(), LoginRequest.class);
 
         LoginService service = new LoginService();

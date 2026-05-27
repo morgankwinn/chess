@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +18,7 @@ public class RegisterTests {
     }
 
     @Test
-    public void registerSuccess() throws BadRequestException, AlreadyTakenException {
+    public void registerSuccess() throws BadRequestException, AlreadyTakenException, DataAccessException {
         RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
         RegisterService service = new RegisterService();
         RegisterResult result = service.register(request, userDao, authDao);
@@ -31,7 +28,7 @@ public class RegisterTests {
     }
 
     @Test
-    public void reregisterFailure() throws BadRequestException, AlreadyTakenException {
+    public void reregisterFailure() throws BadRequestException, AlreadyTakenException, DataAccessException {
         RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
         RegisterService service = new RegisterService();
         service.register(request, userDao, authDao);

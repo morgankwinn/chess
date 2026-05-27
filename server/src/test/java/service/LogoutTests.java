@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,7 @@ public class LogoutTests {
     private static RegisterResult registerResult;
 
     @BeforeEach
-    public void setup() throws BadRequestException, AlreadyTakenException {
+    public void setup() throws BadRequestException, AlreadyTakenException, DataAccessException {
         userDao = new MemoryUserDAO();
         authDao = new MemoryAuthDAO();
 
@@ -27,7 +24,7 @@ public class LogoutTests {
     }
 
     @Test
-    public void logoutSuccess() throws UnauthorizedException, BadRequestException {
+    public void logoutSuccess() throws UnauthorizedException, BadRequestException, DataAccessException {
         LogoutRequest logoutRequest = new LogoutRequest(registerResult.authToken());
         LogoutService logoutService = new LogoutService();
         logoutService.logout(logoutRequest, authDao);

@@ -13,7 +13,7 @@ public class LoginTests {
     private static AuthDAO authDao;
 
     @BeforeEach
-    public void setup() throws BadRequestException, AlreadyTakenException {
+    public void setup() throws BadRequestException, AlreadyTakenException, DataAccessException {
         userDao = new MemoryUserDAO();
         authDao = new MemoryAuthDAO();
 
@@ -23,7 +23,7 @@ public class LoginTests {
     }
 
     @Test
-    public void loginSuccess() throws UnauthorizedException, BadRequestException {
+    public void loginSuccess() throws UnauthorizedException, BadRequestException, DataAccessException {
         LoginRequest loginRequest = new LoginRequest("user1", "1234");
         LoginService loginService = new LoginService();
         LoginResult loginResult = loginService.login(loginRequest, userDao, authDao);

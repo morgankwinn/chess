@@ -20,7 +20,7 @@ public class ClearTests {
     }
 
     @Test
-    public void clearSuccess() throws BadRequestException, AlreadyTakenException {
+    public void clearSuccess() throws BadRequestException, AlreadyTakenException, DataAccessException {
         RegisterRequest request = new RegisterRequest("user1", "1234", "me@gmail.com");
         RegisterService registerService = new RegisterService();
         ClearService clearService = new ClearService();
