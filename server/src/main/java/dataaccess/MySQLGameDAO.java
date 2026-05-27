@@ -37,7 +37,7 @@ public class MySQLGameDAO implements GameDAO {
         String statement = "SELECT * FROM game where gameID=?";
         try (Connection conn = DatabaseManager.getConnection()) {
             PreparedStatement ps = conn.prepareStatement(statement);
-            ps.setInt(gameID, 1);
+            ps.setInt(1, gameID);
 
             ResultSet rs = ps.executeQuery();
 

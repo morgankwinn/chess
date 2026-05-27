@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthToken;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import request.RegisterRequest;
 import result.RegisterResult;
 
@@ -19,6 +20,7 @@ public class RegisterService {
         validateRequest(username, password, email);
         isUserOpen(username, userDao);
 
+        password = BCrypt.hashpw(password, BCrypt.gensalt());
         User user = new User(username, password, email);
         userDao.addUser(user);
         AuthToken authToken = authDao.addAuthToken(user);

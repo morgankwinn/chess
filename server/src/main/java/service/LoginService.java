@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthToken;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import result.LoginResult;
 
@@ -18,7 +19,7 @@ public class LoginService {
         doesUserExist(username, userDao);
 
         User user = userDao.getUser(username);
-        if (!password.equals(user.password())) {
+        if (!BCrypt.checkpw(password, user.password())) {
             throw new UnauthorizedException("ERROR: password is incorrect");
         }
         AuthToken authToken = authDao.addAuthToken(user);
