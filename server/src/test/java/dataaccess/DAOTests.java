@@ -5,10 +5,8 @@ import model.AuthToken;
 import model.Game;
 import model.User;
 import org.junit.jupiter.api.*;
-import passoff.server.TestServerFacade;
 import request.RegisterRequest;
 import result.RegisterResult;
-import server.Server;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.RegisterService;
@@ -20,26 +18,12 @@ public class DAOTests {
     private static GameDAO gameDAO = new MySQLGameDAO();
     private static UserDAO userDAO = new MySQLUserDAO();
     private static User testUser = new User("testUser", "userNumber1", "User1@user.net");
-    private static TestServerFacade serverFacade;
-    private static Server server;
 
-    @BeforeAll
-    public static void startServer() {
-        server = new Server();
-        var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
-
-        serverFacade = new TestServerFacade("localhost", Integer.toString(port));
-    }
-
-    @BeforeEach
-    public void setup() {
-        serverFacade.clear();
-    }
-
-    @AfterAll
-    static void stopServer() {
-        server.stop();
+    @AfterEach
+    public void takeDown() throws DataAccessException {
+        authDAO.clearAuthTokens();
+        gameDAO.clearGames();
+        userDAO.clearUsers();
     }
 
     @Test
