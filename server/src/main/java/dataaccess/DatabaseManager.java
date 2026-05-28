@@ -12,7 +12,7 @@ public class DatabaseManager {
     private static String dbUsername;
     private static String dbPassword;
     private static String connectionUrl;
-    private static final String[] createStatements = {
+    private static final String[] CREATE_STATEMENTS = {
             """
             CREATE TABLE IF NOT EXISTS authToken (
               `ID` int NOT NULL AUTO_INCREMENT,
@@ -111,7 +111,7 @@ public class DatabaseManager {
     public static void configureDatabase() throws DataAccessException {
         createDatabase();
         try (Connection conn = getConnection()) {
-            for (String statement : createStatements) {
+            for (String statement : CREATE_STATEMENTS) {
                 try (var preparedStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
                     preparedStatement.executeUpdate();
                 }
