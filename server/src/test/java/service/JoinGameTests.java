@@ -5,11 +5,11 @@ import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
-import request.RegisterRequest;
-import result.CreateGameResult;
-import result.RegisterResult;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
+import model.request.RegisterRequest;
+import model.result.CreateGameResult;
+import model.result.RegisterResult;
 
 public class JoinGameTests {
     private static UserDAO userDao;

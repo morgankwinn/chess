@@ -1,11 +1,9 @@
 package handler;
 
-import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import io.javalin.http.Context;
-import request.LogoutRequest;
-import result.LogoutResult;
+import model.request.LogoutRequest;
 import service.BadRequestException;
 import service.LogoutService;
 import service.UnauthorizedException;

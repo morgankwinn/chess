@@ -4,9 +4,9 @@ import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.LogoutRequest;
-import request.RegisterRequest;
-import result.RegisterResult;
+import model.request.LogoutRequest;
+import model.request.RegisterRequest;
+import model.result.RegisterResult;
 
 public class LogoutTests {
     private static UserDAO userDao;

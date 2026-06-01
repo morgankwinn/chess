@@ -6,8 +6,8 @@ import dataaccess.UserDAO;
 import model.AuthToken;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
-import request.RegisterRequest;
-import result.RegisterResult;
+import model.request.RegisterRequest;
+import model.result.RegisterResult;
 
 public class RegisterService {
 

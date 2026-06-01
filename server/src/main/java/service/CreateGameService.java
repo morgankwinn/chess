@@ -3,10 +3,8 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import request.CreateGameRequest;
-import result.CreateGameResult;
-
-import javax.xml.crypto.Data;
+import model.request.CreateGameRequest;
+import model.result.CreateGameResult;
 
 public class CreateGameService {
     public CreateGameResult createGame(CreateGameRequest request, GameDAO gameDao, AuthDAO authDao)

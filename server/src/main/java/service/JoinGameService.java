@@ -5,7 +5,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.Game;
-import request.JoinGameRequest;
+import model.request.JoinGameRequest;
 
 public class JoinGameService {
     public void joinGame(JoinGameRequest request, GameDAO gameDao, AuthDAO authDao)

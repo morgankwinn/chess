@@ -4,8 +4,8 @@ import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.RegisterRequest;
-import result.RegisterResult;
+import model.request.RegisterRequest;
+import model.result.RegisterResult;
 
 public class RegisterTests {
     private static UserDAO userDao;

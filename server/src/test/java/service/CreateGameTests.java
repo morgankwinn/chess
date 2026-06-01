@@ -4,10 +4,10 @@ import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import request.CreateGameRequest;
-import request.RegisterRequest;
-import result.CreateGameResult;
-import result.RegisterResult;
+import model.request.CreateGameRequest;
+import model.request.RegisterRequest;
+import model.result.CreateGameResult;
+import model.result.RegisterResult;
 
 public class CreateGameTests {
     private static UserDAO userDao;
