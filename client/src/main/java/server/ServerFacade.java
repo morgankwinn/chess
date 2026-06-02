@@ -27,7 +27,8 @@ public class ServerFacade {
     }
 
     public CreateGameResult createGame(String authToken, String gameName) throws RuntimeException {
-        var request = buildRequest("POST", "/game", gameName, authToken);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName);
+        var request = buildRequest("POST", "/game", createGameRequest, authToken);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);
     }
