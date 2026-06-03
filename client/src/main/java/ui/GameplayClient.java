@@ -20,8 +20,9 @@ public class GameplayClient {
 
         if (LoginClient.playerColor == ChessGame.TeamColor.BLACK) {
             drawBoardBlackSide();
+        } else {
+            drawBoardWhiteSide();
         }
-        drawBoardWhiteSide();
     }
 
     private static void drawBoardWhiteSide() {
@@ -76,31 +77,31 @@ public class GameplayClient {
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                         EscapeSequences.SET_TEXT_COLOR_BLACK +
-                        " " + i +
-                        EscapeSequences.RESET_BG_COLOR + " \n");
+                        " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
     }
 
     private static void drawSquare(int i, int j, Color squareColor) {
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
 
-        String esSquareColor = null;
         ChessPiece.PieceType type = null;
-        String esPieceColor = null;
-
         if (piece != null) {
             type = piece.getPieceType();
         }
+
+        String esSquareColor;
+        if (squareColor == Color.white) {
+            esSquareColor = EscapeSequences.SET_BG_COLOR_WHITE;
+        } else {
+            esSquareColor = EscapeSequences.SET_BG_COLOR_BLACK;
+        }
+
+        String esPieceColor;
         if (piece == null) {
             esPieceColor = esSquareColor;
         } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             esPieceColor = EscapeSequences.SET_TEXT_COLOR_BLUE;
         } else {
             esPieceColor = EscapeSequences.SET_TEXT_COLOR_RED;
-        }
-        if (squareColor == Color.white) {
-            esSquareColor = EscapeSequences.SET_BG_COLOR_WHITE;
-        } else {
-            esSquareColor = EscapeSequences.SET_BG_COLOR_BLACK;
         }
 
         String pieceSymbol = getPieceSymbol(type);
@@ -132,7 +133,7 @@ public class GameplayClient {
             case KNIGHT -> "N";
             case ROOK -> "R";
             case PAWN -> "P";
-            default -> " ";
+            case null -> " ";
         };
     }
 }
