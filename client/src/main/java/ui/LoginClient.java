@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class LoginClient {
+    static ChessGame.TeamColor playerColor = null;
 
     public void run() {
         System.out.print(help());
@@ -99,7 +100,6 @@ public class LoginClient {
             System.out.println("Please pick black or white");
             PreLoginClient.printPrompt();
             String color = scanner.nextLine();
-            ChessGame.TeamColor playerColor = null;
             switch (color.toLowerCase()) {
                 case "black" -> playerColor = ChessGame.TeamColor.BLACK;
                 case "white" -> playerColor = ChessGame.TeamColor.WHITE;
