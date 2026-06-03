@@ -57,7 +57,7 @@ public class PreLoginClient {
                 default -> help();
             };
         } catch (Exception e) {
-            throw new RuntimeException("ERROR: Command not evaluated");
+            throw new RuntimeException(e.getMessage());
         }
     }
 
