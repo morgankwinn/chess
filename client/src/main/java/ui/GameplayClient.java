@@ -27,46 +27,59 @@ public class GameplayClient {
 
     private static void drawBoardWhiteSide() {
         Color initColor = Color.white;
-
         drawWhiteHeaders();
-
         for (int i = 8; i >= 1; i--) {
-            drawRow(i, initColor);
+            drawWhiteRow(i, initColor);
             if (initColor == Color.white) {
                 initColor = Color.black;
             } else {
                 initColor = Color.white;
             }
         }
-
         drawWhiteHeaders();
     }
 
     private static void drawBoardBlackSide() {
         Color initColor = Color.white;
-
         drawBlackHeaders();
-
-        for (int i = 8; i >= 1; i--) {
-            drawRow(i, initColor);
+        for (int i = 1; i <= 8; i++) {
+            drawBlackRow(i, initColor);
             if (initColor == Color.white) {
                 initColor = Color.black;
             } else {
                 initColor = Color.white;
             }
         }
-
         drawBlackHeaders();
     }
 
-    private static void drawRow(int i, Color initColor) {
+    private static void drawWhiteRow(int i, Color initColor) {
         Color squareColor = initColor;
-
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                         EscapeSequences.SET_TEXT_COLOR_BLACK +
                         " " + i + " ");
         for (int j = 1; j <= 8; j++) {
+            drawSquare(i, j, squareColor);
+            if (squareColor == Color.white) {
+                squareColor = Color.black;
+            } else {
+                squareColor = Color.white;
+            }
+        }
+        System.out.print(
+                EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                        EscapeSequences.SET_TEXT_COLOR_BLACK +
+                        " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
+    }
+
+    private static void drawBlackRow(int i, Color initColor) {
+        Color squareColor = initColor;
+        System.out.print(
+                EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                        EscapeSequences.SET_TEXT_COLOR_BLACK +
+                        " " + i + " ");
+        for (int j = 8; j >= 1; j--) {
             drawSquare(i, j, squareColor);
             if (squareColor == Color.white) {
                 squareColor = Color.black;
