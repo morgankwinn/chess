@@ -21,7 +21,7 @@ public class LoginClient {
 
             try {
                 result = eval(line);
-                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
 
                 if (isEnteringGame(result)) {
                     GameplayClient gameplayClient = new GameplayClient();
@@ -88,7 +88,7 @@ public class LoginClient {
         }
     }
 
-    private String playGame() {
+    private String playGame() throws RuntimeException {
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -103,6 +103,7 @@ public class LoginClient {
             switch (color.toLowerCase()) {
                 case "black" -> playerColor = ChessGame.TeamColor.BLACK;
                 case "white" -> playerColor = ChessGame.TeamColor.WHITE;
+                default -> throw new RuntimeException("ERROR: Invalid team selected");
             }
 
             PreLoginClient.server.joinGame(PreLoginClient.authToken, playerColor, gameID);
@@ -144,7 +145,7 @@ public class LoginClient {
                 Objects.equals(message, "Now observing game");
     }
 
-    private static int getGameID(String gameNum) {
+    private static int getGameID(String gameNum) throws RuntimeException {
         ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
         int gameID = 0;
         int i = 1;
@@ -153,6 +154,9 @@ public class LoginClient {
                 gameID = game.gameID();
             }
             i++;
+        }
+        if (gameID == 0) {
+            throw new RuntimeException("ERROR: Invalid game number");
         }
         return gameID;
     }

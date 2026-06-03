@@ -15,11 +15,7 @@ public class PreLoginClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public static void main(String[] args) {
-        run();
-    }
-
-    public static void run() {
+    public void run() {
         System.out.println("Welcome to chess. Register to start");
         System.out.print(help());
 
@@ -50,7 +46,6 @@ public class PreLoginClient {
 
     public static void notify(String notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification);
-        printPrompt();
     }
 
     private static String eval(String input) throws RuntimeException {

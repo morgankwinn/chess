@@ -76,25 +76,34 @@ public class GameplayClient {
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                         EscapeSequences.SET_TEXT_COLOR_BLACK +
-                        " " + i + " ");
+                        " " + i +
+                        EscapeSequences.RESET_BG_COLOR + " \n");
     }
 
     private static void drawSquare(int i, int j, Color squareColor) {
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-        String pieceSymbol = getPieceSymbol(piece.getPieceType());
+
+        String esSquareColor = null;
+        ChessPiece.PieceType type = null;
         String esPieceColor = null;
-        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+
+        if (piece != null) {
+            type = piece.getPieceType();
+        }
+        if (piece == null) {
+            esPieceColor = esSquareColor;
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             esPieceColor = EscapeSequences.SET_TEXT_COLOR_BLUE;
         } else {
             esPieceColor = EscapeSequences.SET_TEXT_COLOR_RED;
         }
-
-        String esSquareColor = null;
         if (squareColor == Color.white) {
             esSquareColor = EscapeSequences.SET_BG_COLOR_WHITE;
         } else {
             esSquareColor = EscapeSequences.SET_BG_COLOR_BLACK;
         }
+
+        String pieceSymbol = getPieceSymbol(type);
 
         System.out.print(esSquareColor + esPieceColor + " " + pieceSymbol + " ");
     }
@@ -103,14 +112,16 @@ public class GameplayClient {
         System.out.println(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                         EscapeSequences.SET_TEXT_COLOR_BLACK +
-                        "    a  b  c  d  e  f  g  h    ");
+                        "    a  b  c  d  e  f  g  h    " +
+                        EscapeSequences.RESET_BG_COLOR);
     }
 
     private static void drawBlackHeaders() {
         System.out.println(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                         EscapeSequences.SET_TEXT_COLOR_BLACK +
-                        "    h  g  f  e  d  c  b  a    ");
+                        "    h  g  f  e  d  c  b  a    " +
+                        EscapeSequences.RESET_BG_COLOR);
     }
 
     private static String getPieceSymbol(ChessPiece.PieceType pieceType) {
@@ -121,6 +132,7 @@ public class GameplayClient {
             case KNIGHT -> "N";
             case ROOK -> "R";
             case PAWN -> "P";
+            default -> " ";
         };
     }
 }
