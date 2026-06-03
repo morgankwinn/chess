@@ -50,6 +50,7 @@ public class PreLoginClient {
 
     public static void notify(String notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification);
+        printPrompt();
     }
 
     private static String eval(String input) throws RuntimeException {
