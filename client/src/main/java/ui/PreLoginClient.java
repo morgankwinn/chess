@@ -15,7 +15,11 @@ public class PreLoginClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public void run() {
+    public static void main(String[] args) {
+        run();
+    }
+
+    public static void run() {
         System.out.println("Welcome to chess. Register to start");
         System.out.print(help());
 
@@ -46,10 +50,9 @@ public class PreLoginClient {
 
     public static void notify(String notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification);
-        printPrompt();
     }
 
-    private String eval(String input) throws RuntimeException {
+    private static String eval(String input) throws RuntimeException {
         try {
             return switch (input.toLowerCase()) {
                 case "register" -> register();
@@ -62,7 +65,7 @@ public class PreLoginClient {
         }
     }
 
-    private String register() {
+    private static String register() {
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -86,7 +89,7 @@ public class PreLoginClient {
         }
     }
 
-    private String login() {
+    private static String login() {
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -106,7 +109,7 @@ public class PreLoginClient {
         }
     }
 
-    private String help() {
+    private static String help() {
         return """
                  - register
                  - login
@@ -115,7 +118,7 @@ public class PreLoginClient {
                 """;
     }
 
-    private boolean isLoggedIn(String message) {
+    private static boolean isLoggedIn(String message) {
         return Objects.equals(message, "Register successful. You are now logged in") ||
                 Objects.equals(message, "Login successful");
     }
