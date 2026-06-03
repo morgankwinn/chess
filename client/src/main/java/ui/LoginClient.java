@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessGame;
+import model.Game;
+import model.result.ListGamesResult;
+
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -52,31 +56,76 @@ public class LoginClient {
         }
     }
 
-    //    Allows the user to input a name for the new game. Calls the server create API to create the game.
-//    This does not join the player to the created game; it only creates the new game in the server.
-    private String createGame() {
+    private String createGame() throws RuntimeException {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Please provide your new game name");
+            PreLoginClient.printPrompt();
+            String gameName = scanner.nextLine();
+
+            PreLoginClient.server.createGame(PreLoginClient.authToken, gameName);
+            return "New game: " + gameName + " created";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    //    Lists all the games that currently exist on the server.
-//    Calls the server list API to get all the game data, and displays the games in a numbered list,
-//    including the game name and players (not observers) in the game.
-//    The numbering for the list should be independent of the game IDs and should start at 1.
-    private String listGames() {
+    private String listGames() throws RuntimeException {
+        try {
+            ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
+            String games = "";
+            int i = 1;
+            for (Game game : listGamesResult.games()) {
+                games += i + ". " + game.gameName() + ": WHITE=" + game.whiteUsername()
+                        + ", BLACK=" + game.blackUsername() + "\n";
+                i++;
+            }
+            return games;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    //    Allows the user to specify which game they want to join and what color they want to play.
-//    They should be able to enter the number of the desired game.
-//    Your client will need to keep track of which number corresponds to which game from the last time it listed
-//    the games.
-//    Calls the server join API to join the user to the game.
     private String playGame() {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Please pick a number game to join");
+            PreLoginClient.printPrompt();
+            String gameNum = scanner.nextLine();
+            int gameID = getGameID(gameNum);
+
+            System.out.println("Please pick black or white");
+            PreLoginClient.printPrompt();
+            String color = scanner.nextLine();
+            ChessGame.TeamColor playerColor = null;
+            switch (color.toLowerCase()) {
+                case "black" -> playerColor = ChessGame.TeamColor.BLACK;
+                case "white" -> playerColor = ChessGame.TeamColor.WHITE;
+            }
+
+            PreLoginClient.server.joinGame(PreLoginClient.authToken, playerColor, gameID);
+            return "Joined game successfully";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    //    Allows the user to specify which game they want to observe.
-//    They should be able to enter the number of the desired game.
-//    Your client will need to keep track of which number corresponds to which game from the last time it listed
-//    the games.
     private String observeGame() {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Please pick a number game to observe");
+            PreLoginClient.printPrompt();
+            String gameNum = scanner.nextLine();
+            int gameID = getGameID(gameNum);
+
+            // additional functionality will be added in phase 6
+            return "Now observing game";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private String help() {
@@ -91,7 +140,20 @@ public class LoginClient {
     }
 
     private boolean isEnteringGame(String message) {
-        return Objects.equals(message, "") ||
-                Objects.equals(message, "");
+        return Objects.equals(message, "Joined game successfully") ||
+                Objects.equals(message, "Now observing game");
+    }
+
+    private static int getGameID(String gameNum) {
+        ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
+        int gameID = 0;
+        int i = 1;
+        for (Game game : listGamesResult.games()) {
+            if (Objects.equals(gameNum, String.valueOf(i))) {
+                gameID = game.gameID();
+            }
+            i++;
+        }
+        return gameID;
     }
 }
