@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import model.Game;
+import model.result.JoinGameResult;
 import model.result.ListGamesResult;
 
 import java.util.Objects;
@@ -105,6 +106,9 @@ public class LoginClient {
                 case "white" -> playerColor = ChessGame.TeamColor.WHITE;
                 default -> throw new RuntimeException("ERROR: Invalid team selected");
             }
+            if (getGamePlayer(gameNum, playerColor) != null) {
+                throw new RuntimeException("ERROR: Team already taken");
+            }
 
             PreLoginClient.server.joinGame(PreLoginClient.authToken, playerColor, gameID);
             return "Joined game successfully";
@@ -159,5 +163,22 @@ public class LoginClient {
             throw new RuntimeException("ERROR: Invalid game number");
         }
         return gameID;
+    }
+
+    private static String getGamePlayer(String gameNum, ChessGame.TeamColor team) throws RuntimeException {
+        ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
+        String gamePlayer = null;
+        int i = 1;
+        for (Game game : listGamesResult.games()) {
+            if (Objects.equals(gameNum, String.valueOf(i))) {
+                if (team == ChessGame.TeamColor.WHITE) {
+                    gamePlayer = game.whiteUsername();
+                } else {
+                    gamePlayer = game.blackUsername();
+                }
+            }
+            i++;
+        }
+        return gamePlayer;
     }
 }
