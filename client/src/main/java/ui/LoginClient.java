@@ -45,7 +45,7 @@ public class LoginClient {
                 default -> help();
             };
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Command not evaluated");
         }
     }
 
@@ -54,7 +54,7 @@ public class LoginClient {
             PreLoginClient.server.logout(PreLoginClient.authToken);
             return "Logout successful";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not logout");
         }
     }
 
@@ -69,7 +69,7 @@ public class LoginClient {
             PreLoginClient.server.createGame(PreLoginClient.authToken, gameName);
             return "New game: " + gameName + " created";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not create game");
         }
     }
 
@@ -85,7 +85,7 @@ public class LoginClient {
             }
             return games;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not list games");
         }
     }
 
@@ -113,7 +113,7 @@ public class LoginClient {
             PreLoginClient.server.joinGame(PreLoginClient.authToken, playerColor, gameID);
             return "Joined game successfully";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not join game");
         }
     }
 
@@ -129,7 +129,7 @@ public class LoginClient {
             // additional functionality will be added in phase 6
             return "Now observing game";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not observe game");
         }
     }
 

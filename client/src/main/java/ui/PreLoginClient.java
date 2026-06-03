@@ -57,7 +57,7 @@ public class PreLoginClient {
                 default -> help();
             };
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Command not evaluated");
         }
     }
 
@@ -81,7 +81,7 @@ public class PreLoginClient {
             authToken = registerResult.authToken();
             return "Register successful. You are now logged in";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not register");
         }
     }
 
@@ -101,7 +101,7 @@ public class PreLoginClient {
             authToken = loginResult.authToken();
             return "Login successful";
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("ERROR: Could not login");
         }
     }
 
