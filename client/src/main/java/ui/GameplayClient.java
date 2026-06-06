@@ -5,6 +5,8 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.Scanner;
+
 public class GameplayClient {
     private static ChessBoard board;
 
@@ -13,16 +15,75 @@ public class GameplayClient {
         black
     }
 
-    // Uses a new chess game
+//    Make Move
+//    Allow the user to input what move they want to make.
+//    The board is updated to reflect the result of the move, and the board automatically updates
+//    on all clients involved in the game.
+
+//    Resign
+//    Prompts the user to confirm they want to resign.
+//    If they do, the user forfeits the game and the game is over.
+//    Does not cause the user to leave the game.
+
+//    Highlight Legal Moves
+//    Allows the user to input the piece for which they want to highlight legal moves.
+//    The selected piece’s current square and all squares it can legally move to are highlighted.
+//    This is a local operation and has no effect on remote users’ screens.
+
     public void run() {
+        //need to implement actual game
         ChessGame game = new ChessGame();
         board = game.getBoard();
 
+        System.out.print(help());
+
+        Scanner scanner = new Scanner(System.in);
+        String result = "";
+        while (!result.equals("leave")) {
+            PreLoginClient.printPrompt();
+            String line = scanner.nextLine();
+
+            try {
+                result = eval(line);
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
+            } catch (Exception e) {
+                PreLoginClient.notify(e.getMessage());
+            }
+        }
+    }
+
+    private String eval(String input) throws RuntimeException {
+        try {
+            return switch (input.toLowerCase()) {
+                case "makemove" -> ;
+                case "highlightlegalmoves" -> ;
+                case "redrawchessboard" -> redrawBoard();
+                case "resign" -> ;
+                case "leave" -> "leave";
+                default -> help();
+            };
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private void redrawBoard() {
         if (LoginClient.playerColor == ChessGame.TeamColor.BLACK) {
             drawBoardBlackSide();
         } else {
             drawBoardWhiteSide();
         }
+    }
+
+    private String help() {
+        return """
+                 - makeMove
+                 - highlightLegalMoves
+                 - redrawChessBoard
+                 - resign
+                 - leave
+                 - help
+                """;
     }
 
     private static void drawBoardWhiteSide() {
