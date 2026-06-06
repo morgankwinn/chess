@@ -15,21 +15,6 @@ public class GameplayClient {
         black
     }
 
-//    Make Move
-//    Allow the user to input what move they want to make.
-//    The board is updated to reflect the result of the move, and the board automatically updates
-//    on all clients involved in the game.
-
-//    Resign
-//    Prompts the user to confirm they want to resign.
-//    If they do, the user forfeits the game and the game is over.
-//    Does not cause the user to leave the game.
-
-//    Highlight Legal Moves
-//    Allows the user to input the piece for which they want to highlight legal moves.
-//    The selected piece’s current square and all squares it can legally move to are highlighted.
-//    This is a local operation and has no effect on remote users’ screens.
-
     public void run() {
         //need to implement actual game
         ChessGame game = new ChessGame();
@@ -55,10 +40,10 @@ public class GameplayClient {
     private String eval(String input) throws RuntimeException {
         try {
             return switch (input.toLowerCase()) {
-                case "makemove" -> ;
-                case "highlightlegalmoves" -> ;
+                case "makemove" -> makeMove();
+                case "highlightlegalmoves" -> highlightMoves();
                 case "redrawchessboard" -> redrawBoard();
-                case "resign" -> ;
+                case "resign" -> resign();
                 case "leave" -> "leave";
                 default -> help();
             };
@@ -67,12 +52,37 @@ public class GameplayClient {
         }
     }
 
-    private void redrawBoard() {
+    //    Make Move
+//    Allow the user to input what move they want to make.
+//    The board is updated to reflect the result of the move, and the board automatically updates
+//    on all clients involved in the game.
+    private String makeMove() {
+        return "";
+    }
+
+    //    Highlight Legal Moves
+//    Allows the user to input the piece for which they want to highlight legal moves.
+//    The selected piece’s current square and all squares it can legally move to are highlighted.
+//    This is a local operation and has no effect on remote users’ screens.
+    private String highlightMoves() {
+        return "";
+    }
+
+    private String redrawBoard() {
         if (LoginClient.playerColor == ChessGame.TeamColor.BLACK) {
             drawBoardBlackSide();
         } else {
             drawBoardWhiteSide();
         }
+        return "Board successfully redrawn";
+    }
+
+    //    Resign
+//    Prompts the user to confirm they want to resign.
+//    If they do, the user forfeits the game and the game is over.
+//    Does not cause the user to leave the game.
+    private String resign() {
+        return "";
     }
 
     private String help() {
