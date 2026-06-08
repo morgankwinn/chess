@@ -18,6 +18,7 @@ public class Server {
     private final UserDAO userDao = new MySQLUserDAO();
     private final AuthDAO authDao = new MySQLAuthDAO();
     private final GameDAO gameDao = new MySQLGameDAO();
+    private final WebSocketHandler wsHandler = new WebSocketHandler();
 
     public Server() {
         try {
@@ -33,6 +34,11 @@ public class Server {
                 .post("/game", context -> CreateGameHandler.handleCreateGame(context, gameDao, authDao))
                 .put("/game", context -> JoinGameHandler.handleJoinGame(context, gameDao, authDao))
                 .delete("/db", context -> ClearHandler.handleClear(userDao, authDao, gameDao))
+                .ws("/ws", ws -> {
+                    ws.onConnect(wsHandler);
+                    ws.onMessage(wsHandler);
+                    ws.onClose(wsHandler);
+                })
                 .exception(Exception.class, this::handleException);
     }
 
