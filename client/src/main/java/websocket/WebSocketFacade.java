@@ -36,5 +36,7 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-
+    private void connect() {
+    }
+    
 }

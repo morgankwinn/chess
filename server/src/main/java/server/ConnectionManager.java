@@ -1,6 +1,8 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,11 +18,12 @@ public class ConnectionManager {
         connections.remove(session);
     }
 
-    public void broadcast(Session excludeSession, String notification) throws IOException {
+    public void broadcast(Session excludeSession, ServerMessage notification) throws IOException {
+        String notificationJson = new Gson().toJson(notification);
         for (Session c : connections.values()) {
             if (c.isOpen()) {
                 if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(notification);
+                    c.getRemote().sendString(notificationJson);
                 }
             }
         }
