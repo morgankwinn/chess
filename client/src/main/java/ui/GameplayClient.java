@@ -81,16 +81,26 @@ public class GameplayClient {
         return "Board successfully redrawn";
     }
 
-    //    Prompts the user to confirm they want to resign.
-//    If they do, the user forfeits the game and the game is over.
-//    Does not cause the user to leave the game.
     private String resign() {
-        return "";
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Are you sure you want to resign? (y/n)");
+            PreLoginClient.printPrompt();
+            String response = scanner.nextLine();
+            if (response.toLowerCase().equals("y")) {
+                ws.resign(PreLoginClient.authToken, LoginClient.gameID);
+                return "You have resigned successfully";
+            } else {
+                return "You have not resigned";
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Could not resign game");
+        }
     }
 
-    //    Removes the user from the game (whether they are playing or observing the game).
-//    The client transitions back to the Post-Login UI.
     private String leave() {
+        ws.leave(PreLoginClient.authToken, LoginClient.gameID);
         return "leave";
     }
 

@@ -125,9 +125,8 @@ public class LoginClient {
             System.out.println("Please pick a number game to observe");
             PreLoginClient.printPrompt();
             String gameNum = scanner.nextLine();
-            int gameID = getGameID(gameNum);
+            gameID = getGameID(gameNum);
 
-            // additional functionality will be added in phase 6
             return "Now observing game";
         } catch (Exception e) {
             throw new RuntimeException("ERROR: Could not observe game");
