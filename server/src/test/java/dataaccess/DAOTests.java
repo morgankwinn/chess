@@ -189,6 +189,7 @@ public class DAOTests {
 
     @Test
     public void addUserToGameSuccess() throws DataAccessException {
+        gameDAO.clearGames();
         gameDAO.addGame(null, null, "yeehee");
         Assertions.assertNull(gameDAO.getGame(1).whiteUsername());
         Assertions.assertNull(gameDAO.getGame(1).blackUsername());
