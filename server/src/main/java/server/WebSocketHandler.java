@@ -2,8 +2,6 @@ package server;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -22,21 +20,17 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private final ConnectionManager connections = new ConnectionManager();
-    private final UserDAO userDao;
     private final AuthDAO authDao;
     private final GameDAO gameDao;
 
-    public WebSocketHandler(UserDAO userDao, AuthDAO authDao, GameDAO gameDao) {
-        this.userDao = userDao;
+    public WebSocketHandler(AuthDAO authDao, GameDAO gameDao) {
         this.authDao = authDao;
         this.gameDao = gameDao;
     }
@@ -68,12 +62,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(UserGameCommand command, Session session) throws IOException {
-        connections.add(session);
+        connections.add(command.getGameID(), session);
         String username = getUsername(command, session);
         Game game = getGame(command, session);
         ChessGame.TeamColor playerColor = getPlayerColor(username, game);
 
-        LoadGameMessage message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        LoadGameMessage message = new LoadGameMessage(game);
         String messageJson = new Gson().toJson(message);
         if (session.isOpen()) {
             session.getRemote().sendString(messageJson);
@@ -87,8 +81,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     username + " has connected as " + playerColor.toString().toLowerCase();
         }
         NotificationMessage notificationMessage =
-                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcast);
-        connections.broadcast(session, notificationMessage);
+                new NotificationMessage(broadcast);
+        connections.broadcast(session, notificationMessage, command.getGameID());
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws IOException {
@@ -116,35 +110,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         connections.broadcast(null,
-                new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, getGame(command, session)));
+                new LoadGameMessage(getGame(command, session)), command.getGameID());
         String broadcast = move.getStartPosition().toString() + " has moved to " + move.getEndPosition().toString();
         connections.broadcast(session,
-                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcast));
+                new NotificationMessage(broadcast), command.getGameID());
 
         if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "white side is in check"));
+                    new NotificationMessage("white side is in check"), command.getGameID());
         } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "black side is in check"));
+                    new NotificationMessage("black side is in check"), command.getGameID());
         } else if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "white side is in checkmate"));
+                    new NotificationMessage("white side is in checkmate"), command.getGameID());
         } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "black side is in checkmate"));
+                    new NotificationMessage("black side is in checkmate"), command.getGameID());
         } else if (chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "white side is in a stalemate"));
+                    new NotificationMessage("white side is in a stalemate"), command.getGameID());
         } else if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) {
             connections.broadcast(null,
-                    new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "black side is in a stalemate"));
+                    new NotificationMessage("black side is in a stalemate"), command.getGameID());
         }
     }
 
@@ -157,7 +145,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (DataAccessException e) {
             sendErrorMessage(session, "ERROR: Could not leave game");
         }
-        connections.remove(session);
+        connections.remove(command.getGameID(), session);
 
         String broadcast;
         if (playerColor == null) {
@@ -167,8 +155,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     username + " has left the game as " + playerColor.toString().toLowerCase();
         }
         NotificationMessage notificationMessage =
-                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcast);
-        connections.broadcast(session, notificationMessage);
+                new NotificationMessage(broadcast);
+        connections.broadcast(session, notificationMessage, command.getGameID());
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException {
@@ -190,8 +178,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         String broadcast = username + " has resigned";
         NotificationMessage notificationMessage =
-                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcast);
-        connections.broadcast(null, notificationMessage);
+                new NotificationMessage(broadcast);
+        connections.broadcast(null, notificationMessage, command.getGameID());
     }
 
     private static ChessGame.TeamColor getPlayerColor(String username, Game game) {
@@ -247,29 +235,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void sendErrorMessage(Session session, String message) throws IOException {
         ErrorMessage errorMessage =
-                new ErrorMessage(ServerMessage.ServerMessageType.ERROR, message);
+                new ErrorMessage(message);
         String errorMessageJson = new Gson().toJson(errorMessage);
         if (session.isOpen()) {
             session.getRemote().sendString(errorMessageJson);
         }
         throw new IOException(message);
-    }
-
-    private void sendNotificationMessage(Session session, String message) throws IOException {
-        NotificationMessage notificationMessage =
-                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        String notificationMessageJson = new Gson().toJson(notificationMessage);
-        if (session.isOpen()) {
-            session.getRemote().sendString(notificationMessageJson);
-        }
-    }
-
-    private void sendLoadGameMessage(Session session, Game game) throws IOException {
-        LoadGameMessage loadGameMessage =
-                new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-        String loadGameMessageJson = new Gson().toJson(loadGameMessage);
-        if (session.isOpen()) {
-            session.getRemote().sendString(loadGameMessageJson);
-        }
     }
 }

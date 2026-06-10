@@ -18,7 +18,7 @@ public class Server {
     private final UserDAO userDao = new MySQLUserDAO();
     private final AuthDAO authDao = new MySQLAuthDAO();
     private final GameDAO gameDao = new MySQLGameDAO();
-    private final WebSocketHandler wsHandler = new WebSocketHandler(userDao, authDao, gameDao);
+    private final WebSocketHandler wsHandler = new WebSocketHandler(authDao, gameDao);
 
     public Server() {
         try {
