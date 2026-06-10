@@ -44,7 +44,7 @@ public class GameplayClient {
                 case "highlightlegalmoves" -> highlightMoves();
                 case "redrawchessboard" -> redrawBoard();
                 case "resign" -> resign();
-                case "leave" -> "leave";
+                case "leave" -> leave();
                 default -> help();
             };
         } catch (Exception e) {
@@ -52,16 +52,14 @@ public class GameplayClient {
         }
     }
 
-    //    Make Move
-//    Allow the user to input what move they want to make.
+    //    Allow the user to input what move they want to make.
 //    The board is updated to reflect the result of the move, and the board automatically updates
 //    on all clients involved in the game.
     private String makeMove() {
         return "";
     }
 
-    //    Highlight Legal Moves
-//    Allows the user to input the piece for which they want to highlight legal moves.
+    //    Allows the user to input the piece for which they want to highlight legal moves.
 //    The selected piece’s current square and all squares it can legally move to are highlighted.
 //    This is a local operation and has no effect on remote users’ screens.
     private String highlightMoves() {
@@ -77,12 +75,17 @@ public class GameplayClient {
         return "Board successfully redrawn";
     }
 
-    //    Resign
-//    Prompts the user to confirm they want to resign.
+    //    Prompts the user to confirm they want to resign.
 //    If they do, the user forfeits the game and the game is over.
 //    Does not cause the user to leave the game.
     private String resign() {
         return "";
+    }
+
+    //    Removes the user from the game (whether they are playing or observing the game).
+//    The client transitions back to the Post-Login UI.
+    private String leave() {
+        return "leave";
     }
 
     private String help() {
