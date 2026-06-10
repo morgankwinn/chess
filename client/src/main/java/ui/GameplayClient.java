@@ -5,11 +5,14 @@ import model.Game;
 import model.result.ListGamesResult;
 import websocket.WebSocketFacade;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class GameplayClient {
+    private static ChessGame game;
     private static ChessBoard board;
+    Collection<ChessMove> validMoves;
     private WebSocketFacade ws;
 
     enum Color {
@@ -20,8 +23,9 @@ public class GameplayClient {
     public void run() {
         ws = new WebSocketFacade("http://localhost:8080");
         ws.connect(PreLoginClient.authToken, LoginClient.gameID);
-        ChessGame game = getGame();
+        game = getGame();
         board = game.getBoard();
+        validMoves = null;
 
         System.out.print(help());
 
@@ -88,11 +92,23 @@ public class GameplayClient {
         }
     }
 
-    //    Allows the user to input the piece for which they want to highlight legal moves.
-//    The selected piece’s current square and all squares it can legally move to are highlighted.
-//    This is a local operation and has no effect on remote users’ screens.
+    //    The selected piece’s current square and all squares it can legally move to are highlighted.
     private String highlightMoves() {
-        return "";
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("What is the location of the desired piece?");
+            PreLoginClient.printPrompt();
+            String locString = scanner.nextLine();
+            ChessPosition loc = interpretPosition(locString);
+
+            validMoves = game.validMoves(loc);
+            redrawBoard();
+            validMoves = null;
+            return "Highlight moves successful";
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Could not highlight moves");
+        }
     }
 
     private String redrawBoard() {
@@ -138,7 +154,7 @@ public class GameplayClient {
                 """;
     }
 
-    private static void drawBoardWhiteSide() {
+    private void drawBoardWhiteSide() {
         Color initColor = Color.white;
         drawWhiteHeaders();
         for (int i = 8; i >= 1; i--) {
@@ -152,7 +168,7 @@ public class GameplayClient {
         drawWhiteHeaders();
     }
 
-    private static void drawBoardBlackSide() {
+    private void drawBoardBlackSide() {
         Color initColor = Color.white;
         drawBlackHeaders();
         for (int i = 1; i <= 8; i++) {
@@ -166,7 +182,7 @@ public class GameplayClient {
         drawBlackHeaders();
     }
 
-    private static void drawWhiteRow(int i, Color initColor) {
+    private void drawWhiteRow(int i, Color initColor) {
         Color squareColor = initColor;
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
@@ -186,7 +202,7 @@ public class GameplayClient {
                         " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
     }
 
-    private static void drawBlackRow(int i, Color initColor) {
+    private void drawBlackRow(int i, Color initColor) {
         Color squareColor = initColor;
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
@@ -206,7 +222,7 @@ public class GameplayClient {
                         " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
     }
 
-    private static void drawSquare(int i, int j, Color squareColor) {
+    private void drawSquare(int i, int j, Color squareColor) {
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
 
         ChessPiece.PieceType type = null;
@@ -217,8 +233,28 @@ public class GameplayClient {
         String esSquareColor;
         if (squareColor == Color.white) {
             esSquareColor = EscapeSequences.SET_BG_COLOR_WHITE;
+            if (validMoves != null) {
+                for (ChessMove validMove : validMoves) {
+                    if (validMove.getStartPosition().getRow() == i && validMove.getStartPosition().getColumn() == j) {
+                        esSquareColor = EscapeSequences.SET_BG_COLOR_GREEN;
+                    } else if (validMove.getEndPosition().getRow() == i &&
+                            validMove.getEndPosition().getColumn() == j) {
+                        esSquareColor = EscapeSequences.SET_BG_COLOR_GREEN;
+                    }
+                }
+            }
         } else {
             esSquareColor = EscapeSequences.SET_BG_COLOR_BLACK;
+            if (validMoves != null) {
+                for (ChessMove validMove : validMoves) {
+                    if (validMove.getStartPosition().getRow() == i && validMove.getStartPosition().getColumn() == j) {
+                        esSquareColor = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+                    } else if (validMove.getEndPosition().getRow() == i &&
+                            validMove.getEndPosition().getColumn() == j) {
+                        esSquareColor = EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+                    }
+                }
+            }
         }
 
         String esPieceColor;
