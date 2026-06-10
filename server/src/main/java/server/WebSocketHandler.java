@@ -1,6 +1,8 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -13,7 +15,6 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.Game;
-import org.jetbrains.annotations.Nullable;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
@@ -49,7 +50,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, ctx.session);
-                case MAKE_MOVE -> makeMove(command, ctx.session);
+                case MAKE_MOVE -> makeMove(new Gson().fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
                 case LEAVE -> leave(command, ctx.session);
                 case RESIGN -> resign(command, ctx.session);
             }
@@ -92,7 +93,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 //    Server sends a LOAD_GAME message to all clients in the game (including the root client) with an updated game.
 //    Server sends a Notification message to all other clients in that game informing them what move was made.
 //    If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
-    private void makeMove(UserGameCommand command, Session session) throws IOException {
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException {
+        ChessMove move = command.getMove();
+        //get game
+        //makemove chess game
+        //update the game
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException {
@@ -118,7 +123,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, notificationMessage);
     }
 
-    //    Server marks the game as over (no more moves can be made). Game is updated in the database.
     private void resign(UserGameCommand command, Session session) throws IOException {
         String username = getUsername(command, session);
         Game game = getGame(command, session);
@@ -126,14 +130,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if (playerColor == null) {
             sendErrorMessage(session, "ERROR: Observers cannot resign");
+        } else if (Objects.equals(game.getState(), "gameover")) {
+            sendErrorMessage(session, "ERROR: Already resigned");
         }
 
-        gameDao.
+        try {
+            gameDao.updateState(command.getGameID(), "gameover");
+        } catch (DataAccessException e) {
+            throw new IOException("ERROR: Could not update game state");
+        }
 
-                String broadcast = username + " has resigned";
+        String broadcast = username + " has resigned";
         NotificationMessage notificationMessage =
                 new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, broadcast);
-        connections.broadcast(session, notificationMessage);
+        connections.broadcast(null, notificationMessage);
     }
 
     private static ChessGame.TeamColor getPlayerColor(String username, Game game) {
@@ -181,6 +191,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String errorMessageJson = new Gson().toJson(errorMessage);
         if (session.isOpen()) {
             session.getRemote().sendString(errorMessageJson);
+        }
+        throw new IOException(message);
+    }
+
+    private void sendNotificationMessage(Session session, String message) throws IOException {
+        NotificationMessage notificationMessage =
+                new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        String notificationMessageJson = new Gson().toJson(notificationMessage);
+        if (session.isOpen()) {
+            session.getRemote().sendString(notificationMessageJson);
         }
         throw new IOException(message);
     }

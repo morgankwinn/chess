@@ -47,4 +47,9 @@ public class MemoryGameDAO implements GameDAO {
             game.setBlackUsername(username);
         }
     }
+
+    @Override
+    public void updateState(int gameID, String state) throws DataAccessException {
+
+    }
 }

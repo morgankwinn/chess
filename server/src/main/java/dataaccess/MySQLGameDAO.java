@@ -46,9 +46,10 @@ public class MySQLGameDAO implements GameDAO {
                 String blackUsername = rs.getString("blackUsername");
                 String gameName = rs.getString("gameName");
                 String gameString = rs.getString("game");
+                String state = rs.getString("state");
                 ChessGame game = (ChessGame) new Gson().fromJson(gameString, ChessGame.class);
 
-                return new Game(gameID, whiteUsername, blackUsername, gameName, game);
+                return new Game(gameID, whiteUsername, blackUsername, gameName, game, state);
             }
             return null;
         } catch (SQLException e) {
@@ -90,5 +91,15 @@ public class MySQLGameDAO implements GameDAO {
         }
 
         DatabaseManager.executeUpdate(statement, username, gameID);
+    }
+
+    @Override
+    public void updateState(int gameID, String state) throws DataAccessException {
+        String statement = "UPDATE game SET state=? WHERE gameID=?";
+        DatabaseManager.executeUpdate(statement, state, gameID);
+    }
+
+    public void updateGame() {
+
     }
 }

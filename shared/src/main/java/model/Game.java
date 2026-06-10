@@ -10,6 +10,7 @@ public final class Game {
     private String blackUsername;
     private final String gameName;
     private final ChessGame game;
+    private String state;
 
     public Game(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         this.gameID = gameID;
@@ -17,6 +18,16 @@ public final class Game {
         this.blackUsername = blackUsername;
         this.gameName = gameName;
         this.game = game;
+        this.state = "current";
+    }
+
+    public Game(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game, String state) {
+        this.gameID = gameID;
+        this.whiteUsername = whiteUsername;
+        this.blackUsername = blackUsername;
+        this.gameName = gameName;
+        this.game = game;
+        this.state = state;
     }
 
     public int gameID() {
@@ -41,6 +52,14 @@ public final class Game {
 
     public String gameName() {
         return gameName;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String new_state) {
+        state = new_state;
     }
 
     @Override

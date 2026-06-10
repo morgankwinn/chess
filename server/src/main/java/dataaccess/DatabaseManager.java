@@ -28,6 +28,7 @@ public class DatabaseManager {
               `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
               `game` TEXT DEFAULT NULL,
+              `state` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`)
             )
             """,
