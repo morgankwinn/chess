@@ -52,4 +52,9 @@ public class MemoryGameDAO implements GameDAO {
     public void updateState(int gameID, String state) throws DataAccessException {
 
     }
+
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+
+    }
 }

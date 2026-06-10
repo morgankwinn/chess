@@ -99,7 +99,10 @@ public class MySQLGameDAO implements GameDAO {
         DatabaseManager.executeUpdate(statement, state, gameID);
     }
 
-    public void updateGame() {
-
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+        String gameJson = new Gson().toJson(game);
+        String statement = "UPDATE game SET game=? WHERE gameID=?";
+        DatabaseManager.executeUpdate(statement, gameJson, gameID);
     }
 }
