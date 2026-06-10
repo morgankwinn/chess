@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class LoginClient {
-    static ChessGame.TeamColor playerColor = null;
+    public static ChessGame.TeamColor playerColor = null;
+    public static int gameID = -1;
 
     public void run() {
         System.out.print(help());
@@ -96,7 +97,7 @@ public class LoginClient {
             System.out.println("Please pick a number game to join");
             PreLoginClient.printPrompt();
             String gameNum = scanner.nextLine();
-            int gameID = getGameID(gameNum);
+            gameID = getGameID(gameNum);
 
             System.out.println("Please pick black or white");
             PreLoginClient.printPrompt();

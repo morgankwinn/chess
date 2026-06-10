@@ -4,11 +4,16 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import model.Game;
+import model.result.ListGamesResult;
+import websocket.WebSocketFacade;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 public class GameplayClient {
     private static ChessBoard board;
+    private WebSocketFacade ws;
 
     enum Color {
         white,
@@ -16,8 +21,9 @@ public class GameplayClient {
     }
 
     public void run() {
-        //need to implement actual game
-        ChessGame game = new ChessGame();
+        ws = new WebSocketFacade("http://localhost:8080");
+        ws.connect(PreLoginClient.authToken, LoginClient.gameID);
+        ChessGame game = getGame();
         board = game.getBoard();
 
         System.out.print(help());
@@ -222,5 +228,19 @@ public class GameplayClient {
             case PAWN -> "P";
             case null -> " ";
         };
+    }
+
+    private ChessGame getGame() {
+        ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
+        ChessGame chessGame = null;
+        int i = 1;
+        for (Game game : listGamesResult.games()) {
+            if (Objects.equals(LoginClient.gameID, i)) {
+                chessGame = game.getGame();
+                break;
+            }
+            i++;
+        }
+        return chessGame;
     }
 }
