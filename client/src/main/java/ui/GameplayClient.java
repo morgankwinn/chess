@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.Game;
 import model.result.ListGamesResult;
 import websocket.WebSocketFacade;
@@ -58,11 +55,37 @@ public class GameplayClient {
         }
     }
 
-    //    Allow the user to input what move they want to make.
-//    The board is updated to reflect the result of the move, and the board automatically updates
-//    on all clients involved in the game.
     private String makeMove() {
-        return "";
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Where are you moving from?");
+            PreLoginClient.printPrompt();
+            String startString = scanner.nextLine();
+            ChessPosition start = interpretPosition(startString);
+
+            System.out.println("Where are you moving to?");
+            PreLoginClient.printPrompt();
+            String endString = scanner.nextLine();
+            ChessPosition end = interpretPosition(endString);
+
+            ChessPiece.PieceType promo = null;
+            if (board.getPiece(start).getPieceType() == ChessPiece.PieceType.PAWN) {
+                if ((board.getPiece(start).getTeamColor() == ChessGame.TeamColor.BLACK && end.getRow() == 1) ||
+                        (board.getPiece(start).getTeamColor() == ChessGame.TeamColor.WHITE && end.getRow() == 8)) {
+                    System.out.println("Where is your piece being promoted to?");
+                    PreLoginClient.printPrompt();
+                    String promoString = scanner.nextLine();
+                    promo = interpretPromotion(promoString);
+                }
+            }
+
+            ChessMove move = new ChessMove(start, end, promo);
+            ws.makeMove(PreLoginClient.authToken, LoginClient.gameID, move);
+            return "Move successful";
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Could not make move");
+        }
     }
 
     //    Allows the user to input the piece for which they want to highlight legal moves.
@@ -81,7 +104,7 @@ public class GameplayClient {
         return "Board successfully redrawn";
     }
 
-    private String resign() {
+    private String resign() throws RuntimeException {
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -252,5 +275,71 @@ public class GameplayClient {
             i++;
         }
         return chessGame;
+    }
+
+    private ChessPosition interpretPosition(String position) throws RuntimeException {
+        try {
+            String colString = position.substring(1, 2).toLowerCase();
+            int col;
+            String rowString = position.substring(0, 1);
+            int row;
+
+            switch (colString) {
+                case "a" -> col = 1;
+                case "b" -> col = 2;
+                case "c" -> col = 3;
+                case "d" -> col = 4;
+                case "e" -> col = 5;
+                case "f" -> col = 6;
+                case "g" -> col = 7;
+                case "h" -> col = 8;
+                default -> col = 0;
+            }
+            switch (rowString) {
+                case "1" -> row = 1;
+                case "2" -> row = 2;
+                case "3" -> row = 3;
+                case "4" -> row = 4;
+                case "5" -> row = 5;
+                case "6" -> row = 6;
+                case "7" -> row = 7;
+                case "8" -> row = 8;
+                default -> row = 0;
+            }
+
+            return new ChessPosition(row, col);
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Could not interpret position");
+        }
+    }
+
+    private ChessPiece.PieceType interpretPromotion(String promoString) throws RuntimeException {
+        try {
+            switch (promoString.toLowerCase()) {
+                case "k" -> {
+                    return ChessPiece.PieceType.KING;
+                }
+                case "q" -> {
+                    return ChessPiece.PieceType.QUEEN;
+                }
+                case "b" -> {
+                    return ChessPiece.PieceType.BISHOP;
+                }
+                case "r" -> {
+                    return ChessPiece.PieceType.ROOK;
+                }
+                case "n" -> {
+                    return ChessPiece.PieceType.KNIGHT;
+                }
+                case "p" -> {
+                    return ChessPiece.PieceType.PAWN;
+                }
+                default -> {
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("ERROR: Could not interpret promotion");
+        }
     }
 }
