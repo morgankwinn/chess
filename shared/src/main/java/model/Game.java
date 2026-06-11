@@ -58,8 +58,8 @@ public final class Game {
         return state;
     }
 
-    public void setState(String new_state) {
-        state = new_state;
+    public void setState(String newState) {
+        state = newState;
     }
 
     public ChessGame getGame() {
