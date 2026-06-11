@@ -21,7 +21,7 @@ public class GameplayClient {
     }
 
     public void run() {
-        ws = new WebSocketFacade("http://localhost:8080");
+        ws = new WebSocketFacade("http://localhost:8000");
         ws.connect(PreLoginClient.authToken, LoginClient.gameID);
         game = getGame();
         board = game.getBoard();
@@ -96,7 +96,7 @@ public class GameplayClient {
             ws.makeMove(PreLoginClient.authToken, LoginClient.gameID, move);
             return "Move successful";
         } catch (Exception e) {
-            throw new RuntimeException("ERROR: Could not make move");
+            throw new RuntimeException(e.getMessage());
         }
     }
 

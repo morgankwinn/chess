@@ -2,6 +2,7 @@ package server;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -93,46 +94,49 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ChessGame chessGame = getGame(command, session).getGame();
         try {
             if (!isValidMove(chessGame, move)) {
-                throw new Exception();
+                throw new Exception("ERROR: Move is illegal");
             } else if (playerColor != chessGame.getBoard().getPiece(move.getStartPosition()).getTeamColor()) {
-                throw new Exception();
+                throw new Exception("ERROR: Incorrect team");
             } else if (!authDao.containsAuthToken(command.getAuthToken())) {
-                throw new Exception();
+                throw new Exception("ERROR: AuthToken invalid");
             } else if (playerColor == null) {
-                throw new Exception();
+                throw new Exception("ERROR: Observers cannot make moves");
             } else if (Objects.equals(game.getState(), "gameover")) {
-                throw new Exception();
+                throw new Exception("ERROR: Game is over");
+            } else if (game.getGame().getTeamTurn() != playerColor) {
+                throw new Exception("ERROR: Not your turn");
             }
             chessGame.makeMove(move);
             gameDao.updateGame(command.getGameID(), chessGame);
         } catch (Exception e) {
-            sendErrorMessage(session, "ERROR: Could not make move");
+            sendErrorMessage(session, e.getMessage());
         }
 
         connections.broadcast(null,
                 new LoadGameMessage(getGame(command, session)), command.getGameID());
-        String broadcast = move.getStartPosition().toString() + " has moved to " + move.getEndPosition().toString();
+        String broadcast =
+                translatePos(move.getStartPosition()) + " has moved to " + translatePos(move.getEndPosition());
         connections.broadcast(session,
                 new NotificationMessage(broadcast), command.getGameID());
 
-        if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+        if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(null,
-                    new NotificationMessage("white side is in check"), command.getGameID());
-        } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
-            connections.broadcast(null,
-                    new NotificationMessage("black side is in check"), command.getGameID());
-        } else if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            connections.broadcast(null,
-                    new NotificationMessage("white side is in checkmate"), command.getGameID());
+                    new NotificationMessage(game.whiteUsername() + " is in checkmate"), command.getGameID());
         } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
             connections.broadcast(null,
-                    new NotificationMessage("black side is in checkmate"), command.getGameID());
+                    new NotificationMessage(game.blackUsername() + " is in checkmate"), command.getGameID());
         } else if (chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(null,
-                    new NotificationMessage("white side is in a stalemate"), command.getGameID());
+                    new NotificationMessage(game.whiteUsername() + " is in a stalemate"), command.getGameID());
         } else if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK)) {
             connections.broadcast(null,
-                    new NotificationMessage("black side is in a stalemate"), command.getGameID());
+                    new NotificationMessage(game.blackUsername() + " is in a stalemate"), command.getGameID());
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+            connections.broadcast(null,
+                    new NotificationMessage(game.whiteUsername() + " is in check"), command.getGameID());
+        } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+            connections.broadcast(null,
+                    new NotificationMessage(game.blackUsername() + " is in check"), command.getGameID());
         }
     }
 
@@ -241,5 +245,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(errorMessageJson);
         }
         throw new IOException(message);
+    }
+
+    private String translatePos(ChessPosition pos) {
+        String rowChar = String.valueOf(pos.getRow());
+        int col = pos.getColumn();
+        String colChar = "";
+
+        switch (col) {
+            case 1 -> colChar = "a";
+            case 2 -> colChar = "b";
+            case 3 -> colChar = "c";
+            case 4 -> colChar = "d";
+            case 5 -> colChar = "e";
+            case 6 -> colChar = "f";
+            case 7 -> colChar = "g";
+            case 8 -> colChar = "h";
+        }
+
+        return colChar + rowChar;
     }
 }
