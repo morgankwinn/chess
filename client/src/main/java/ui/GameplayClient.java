@@ -10,9 +10,9 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class GameplayClient {
-    private static ChessGame game;
+    public static ChessGame game;
     private static ChessBoard board;
-    Collection<ChessMove> validMoves;
+    static Collection<ChessMove> validMoves;
     private WebSocketFacade ws;
 
     enum Color {
@@ -63,10 +63,18 @@ public class GameplayClient {
         Scanner scanner = new Scanner(System.in);
 
         try {
+            if (LoginClient.playerColor != game.turn) {
+                throw new RuntimeException("ERROR: Cannot move on opponent's turn");
+            }
+
             System.out.println("Where are you moving from?");
             PreLoginClient.printPrompt();
             String startString = scanner.nextLine();
             ChessPosition start = interpretPosition(startString);
+
+            if (board.getPiece(start) == null || board.getPiece(start).getTeamColor() != LoginClient.playerColor) {
+                throw new RuntimeException("ERROR: Cannot move from that location");
+            }
 
             System.out.println("Where are you moving to?");
             PreLoginClient.printPrompt();
@@ -92,7 +100,6 @@ public class GameplayClient {
         }
     }
 
-    //    The selected piece’s current square and all squares it can legally move to are highlighted.
     private String highlightMoves() {
         Scanner scanner = new Scanner(System.in);
 
@@ -111,7 +118,9 @@ public class GameplayClient {
         }
     }
 
-    private String redrawBoard() {
+    public static String redrawBoard() {
+        game = getGame();
+        board = game.getBoard();
         if (LoginClient.playerColor == ChessGame.TeamColor.BLACK) {
             drawBoardBlackSide();
         } else {
@@ -154,7 +163,7 @@ public class GameplayClient {
                 """;
     }
 
-    private void drawBoardWhiteSide() {
+    private static void drawBoardWhiteSide() {
         Color initColor = Color.white;
         drawWhiteHeaders();
         for (int i = 8; i >= 1; i--) {
@@ -168,7 +177,7 @@ public class GameplayClient {
         drawWhiteHeaders();
     }
 
-    private void drawBoardBlackSide() {
+    private static void drawBoardBlackSide() {
         Color initColor = Color.white;
         drawBlackHeaders();
         for (int i = 1; i <= 8; i++) {
@@ -182,7 +191,7 @@ public class GameplayClient {
         drawBlackHeaders();
     }
 
-    private void drawWhiteRow(int i, Color initColor) {
+    private static void drawWhiteRow(int i, Color initColor) {
         Color squareColor = initColor;
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
@@ -202,7 +211,7 @@ public class GameplayClient {
                         " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
     }
 
-    private void drawBlackRow(int i, Color initColor) {
+    private static void drawBlackRow(int i, Color initColor) {
         Color squareColor = initColor;
         System.out.print(
                 EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
@@ -222,7 +231,7 @@ public class GameplayClient {
                         " " + i + " " + EscapeSequences.RESET_BG_COLOR + "\n");
     }
 
-    private void drawSquare(int i, int j, Color squareColor) {
+    private static void drawSquare(int i, int j, Color squareColor) {
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
 
         ChessPiece.PieceType type = null;
@@ -299,7 +308,7 @@ public class GameplayClient {
         };
     }
 
-    private ChessGame getGame() {
+    private static ChessGame getGame() {
         ListGamesResult listGamesResult = PreLoginClient.server.listGames(PreLoginClient.authToken);
         ChessGame chessGame = null;
         int i = 1;
@@ -315,9 +324,9 @@ public class GameplayClient {
 
     private ChessPosition interpretPosition(String position) throws RuntimeException {
         try {
-            String colString = position.substring(1, 2).toLowerCase();
+            String colString = position.substring(0, 1).toLowerCase();
             int col;
-            String rowString = position.substring(0, 1);
+            String rowString = position.substring(1, 2);
             int row;
 
             switch (colString) {

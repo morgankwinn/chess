@@ -3,9 +3,14 @@ package websocket;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import ui.GameplayClient;
 import ui.PreLoginClient;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,8 +30,20 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    String notification = new Gson().fromJson(message, String.class);
-                    PreLoginClient.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                        PreLoginClient.notify(errorMessage.getErrorMessage());
+                    } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+                        System.out.println(notification.getMessage());
+                    } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                        LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                        GameplayClient.game = loadGameMessage.getGame().getGame();
+                        System.out.println();
+                        GameplayClient.redrawBoard();
+                        PreLoginClient.printPrompt();
+                    }
                 }
             });
         } catch (Exception e) {

@@ -13,7 +13,7 @@ import java.util.Objects;
 public class ChessGame {
 
     private ChessBoard board;
-    private ChessGame.TeamColor turn;
+    public ChessGame.TeamColor turn;
 
     public ChessGame() {
         this.board = new ChessBoard();
